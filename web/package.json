@@ -1,0 +1,28 @@
+{
+  "name": "duello-web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start -p 3000"
+  },
+  "dependencies": {
+    "@getpara/react-sdk": "alpha",
+    "@getpara/wagmi-v2-integration": "alpha",
+    "@farcaster/miniapp-wagmi-connector": "latest",
+    "@tanstack/react-query": "^5.51.13",
+    "next": "14.2.5",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "viem": "^2.16.5",
+    "wagmi": "^2.12.2"
+  },
+  "devDependencies": {
+    "@types/react": "19.1.10",
+    "autoprefixer": "10.4.19",
+    "postcss": "8.4.38",
+    "tailwindcss": "3.4.10",
+    "typescript": "5.4.5"
+  }
+}

@@ -3,3 +3,34 @@ project-files/overview.md
 demo-game-data.json
 docs/
 project-files/duello-build-plan.md
+
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+.idea/
+
+# contracts (Hardhat)
+contracts/.env
+contracts/node_modules/
+contracts/artifacts/
+contracts/cache/
+# optional:
+# contracts/coverage/
+# contracts/*.tsbuildinfo
+# contracts/typechain-types/  # ignore if you don't want to commit generated types
+
+# web (Next.js)
+web/node_modules/
+web/.next/
+web/out/
+web/coverage/
+web/.env.local
+# optional:
+# web/.vercel/
+# web/.eslintcache
+
+*.env
+!*.env.example

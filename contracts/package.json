@@ -1,0 +1,25 @@
+{
+  "name": "duello-contracts",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "clean": "hardhat clean",
+    "build": "hardhat compile",
+    "test": "hardhat test",
+    "deploy:sepolia": "hardhat run scripts/deploy.ts --network mantleSepolia",
+    "deploy:mantle": "hardhat run scripts/deploy.ts --network mantle",
+    "verify:sepolia": "hardhat verify --network mantleSepolia",
+    "verify:mantle": "hardhat verify --network mantle"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "@types/node": "^20.14.10",
+    "dotenv": "^16.4.5",
+    "hardhat": "^2.22.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.9.6"
+  }
+}

@@ -1,4 +1,7 @@
 import { ConnectPara } from "@/components/wallet/ConnectPara";
+import { MarketsList } from "@/components/markets/MarketsList";
+import { CreateMarketForm } from "@/components/markets/CreateMarketForm";
+import { CreateFromGame } from "@/components/markets/CreateFromGame";
 
 export default function HomePage() {
   return (
@@ -16,15 +19,11 @@ export default function HomePage() {
       </section>
 
       <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-white rounded-lg border p-4">
-          <h3 className="font-medium mb-1">Markets</h3>
-          <p className="text-sm text-neutral-600">List and explore available markets (coming soon).</p>
-        </div>
-        <div className="bg-white rounded-lg border p-4">
-          <h3 className="font-medium mb-1">Create Market</h3>
-          <p className="text-sm text-neutral-600">Create a new 2-way moneyline market (coming soon).</p>
-        </div>
+        <MarketsList />
+        <CreateMarketForm />
+        <CreateFromGame />
       </section>
     </main>
   );
 }
+

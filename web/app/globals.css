@@ -2,10 +2,54 @@
 @tailwind components;
 @tailwind utilities;
 
-html, body {
-  height: 100%;
+:root {
+  /* Colors from project-files/Design.json */
+  --bg: #1a1a1a;
+  --surface: #2d2d2d;
+  --surfaceElevated: #3a3a3a;
+  --textPrimary: #ffffff;
+  --textSecondary: #b0b0b0;
+  --textMuted: #808080;
+  --green: #4ade80;
+  --greenHover: #22c55e;
+  --blue: #3b82f6;
+  --orange: #f97316;
 }
 
+html, body { height: 100%; }
+
 body {
-  @apply bg-neutral-50 text-neutral-900;
+  background: var(--bg);
+  color: var(--textPrimary);
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* Primitives */
+.card { background: var(--surface); border-radius: 0.5rem; }
+.surface-elev { background: var(--surfaceElevated); }
+.muted { color: var(--textMuted); }
+.secondary { color: var(--textSecondary); }
+.btn { @apply inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium; }
+.btn-primary { background: var(--green); color: #0b0b0b; }
+.btn-primary:hover { background: var(--greenHover); }
+.btn-ghost { background: transparent; border: 1px solid var(--green); color: var(--green); }
+.btn-ghost:hover { background: var(--green); color: #0b0b0b; }
+.chip { @apply inline-flex items-center gap-2 rounded-md px-2.5 py-1 text-xs font-medium; }
+.chip-elev { background: var(--surfaceElevated); color: var(--textPrimary); }
+.chip-green { background: var(--green); color: #0b0b0b; }
+
+/* Form inputs - ensure dark text on light background for readability */
+input, select, textarea {
+  background: #ffffff;
+  color: #0b0b0b;
+}
+input::placeholder, textarea::placeholder {
+  color: #6b7280; /* neutral placeholder */
+}
+
+/* Ensure browser autofill keeps text readable */
+input:-webkit-autofill,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-text-fill-color: #0b0b0b;
 }

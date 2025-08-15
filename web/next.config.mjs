@@ -14,6 +14,9 @@ const nextConfig = {
       "@farcaster/miniapp-wagmi-connector": path.resolve(__dirname, "shims/empty.js"),
       "@getpara/cosmos-wallet-connectors": path.resolve(__dirname, "shims/empty.js"),
       "@getpara/solana-wallet-connectors": path.resolve(__dirname, "shims/empty.js"),
+      // Some transitive deps try to require optional pretty loggers for Node CLIs.
+      // We don't need them in the browser bundle.
+      "pino-pretty": path.resolve(__dirname, "shims/empty.js"),
     };
     return config;
   },

@@ -1,7 +1,7 @@
 contracts/.env.example
 project-files/overview.md
-demo-game-data.json
-docs/
+project-files/duello-build-plan.md
+
 project-files/duello-build-plan.md
 
 
@@ -30,6 +30,12 @@ web/coverage/
 web/.env.local
 # allow demo data inside web even if name matches global ignore
 !web/data/demo-game-data.json
+# allow project docs
+!project-files/overview.md
+!project-files/duello-build-plan.md
+# allow specific docs for reference
+!docs/mantle-docs.txt
+!docs/get-para-docs.txt
 # optional:
 # web/.vercel/
 # web/.eslintcache

@@ -14,6 +14,7 @@ type Props = {
 export function CreateMarketForm({ prefillToken, prefillStartIso }: Props) {
   const factory = FACTORY_ADDRESS;
   const { address } = useAccount();
+  const ZERO = "0x0000000000000000000000000000000000000000" as const;
 
   const { data: owner } = useReadContract({
     chainId: mantleSepolia.id,
@@ -28,10 +29,15 @@ export function CreateMarketForm({ prefillToken, prefillStartIso }: Props) {
     return address.toLowerCase() === (owner as string).toLowerCase();
   }, [address, owner]);
 
+  const [useNative, setUseNative] = useState(false);
   const [token, setToken] = useState(prefillToken ?? "");
-  const [startIso, setStartIso] = useState(
-    () => prefillStartIso ?? new Date(Date.now() + 5 * 60 * 1000).toISOString().slice(0, 16)
-  );
+  const [startIso, setStartIso] = useState(() => {
+    if (prefillStartIso) return prefillStartIso;
+    const d = new Date(Date.now() + 5 * 60 * 1000);
+    // Convert to local datetime string suitable for <input type="datetime-local">
+    const tzAdjusted = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+    return tzAdjusted.toISOString().slice(0, 16);
+  });
 
   const { writeContract, data: txHash, isPending, error: writeError } = useWriteContract();
   const { isLoading: isConfirming, isSuccess: isConfirmed, error: confirmError } = useWaitForTransactionReceipt({ hash: txHash });
@@ -46,7 +52,7 @@ export function CreateMarketForm({ prefillToken, prefillStartIso }: Props) {
         address: factory,
         abi: betFactoryAbi,
         functionName: "createMarket",
-        args: [token as `0x${string}`, BigInt(startSec)],
+        args: [(useNative ? ZERO : (token as `0x${string}`)), BigInt(startSec)],
       });
     } catch {}
   }
@@ -62,14 +68,19 @@ export function CreateMarketForm({ prefillToken, prefillStartIso }: Props) {
         <p className="text-sm text-neutral-600">Only the factory owner can create markets.</p>
       ) : (
         <form onSubmit={submit} className="flex flex-col gap-3">
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" checked={useNative} onChange={(e) => setUseNative(e.target.checked)} />
+            <span>Use native MNT (no ERC20 token)</span>
+          </label>
           <label className="text-sm">
             <span className="block text-neutral-600 mb-1">Stake token address (ERC20)</span>
             <input
               className="border rounded px-2 py-2 w-full"
               placeholder="0x..."
-              value={token}
+              value={useNative ? ZERO : token}
               onChange={(e) => setToken(e.target.value)}
-              required
+              disabled={useNative}
+              required={!useNative}
             />
           </label>
           <label className="text-sm">

@@ -20,8 +20,43 @@ export const betMarketAbi = [
     outputs: [{ type: "uint8" }],
     stateMutability: "view",
   },
+  {
+    type: "function",
+    name: "winningSide",
+    inputs: [],
+    outputs: [{ type: "uint8" }],
+    stateMutability: "view",
+  },
+  { type: "function", name: "totalA", inputs: [], outputs: [{ type: "uint256" }], stateMutability: "view" },
+  { type: "function", name: "totalB", inputs: [], outputs: [{ type: "uint256" }], stateMutability: "view" },
+  {
+    type: "function",
+    name: "stakeOf",
+    inputs: [
+      { name: "user", type: "address" },
+      { name: "side", type: "uint8" },
+    ],
+    outputs: [{ type: "uint256" }],
+    stateMutability: "view",
+  },
+  { type: "function", name: "owner", inputs: [], outputs: [{ type: "address" }], stateMutability: "view" },
+  { type: "function", name: "feeBps", inputs: [], outputs: [{ type: "uint16" }], stateMutability: "view" },
+  { type: "function", name: "feeRecipient", inputs: [], outputs: [{ type: "address" }], stateMutability: "view" },
   // placeholders for future interactions - not used in this step
+  { type: "function", name: "deposit", inputs: [{ name: "side", type: "uint8" }], outputs: [], stateMutability: "payable" },
   { type: "function", name: "lock", inputs: [], outputs: [], stateMutability: "nonpayable" },
   { type: "function", name: "resolve", inputs: [{ name: "winner", type: "uint8" }], outputs: [], stateMutability: "nonpayable" },
   { type: "function", name: "claim", inputs: [], outputs: [], stateMutability: "nonpayable" },
+  { type: "function", name: "setFee", inputs: [{ name: "feeBps", type: "uint16" }, { name: "recipient", type: "address" }], outputs: [], stateMutability: "nonpayable" },
+  // events
+  { type: "event", name: "Deposited", inputs: [
+      { name: "user", type: "address", indexed: true },
+      { name: "side", type: "uint8", indexed: false },
+      { name: "amount", type: "uint256", indexed: false },
+    ] },
+  { type: "event", name: "Locked", inputs: [ { name: "when", type: "uint256", indexed: false } ] },
+  { type: "event", name: "Resolved", inputs: [ { name: "winner", type: "uint8", indexed: false } ] },
+  { type: "event", name: "Voided", inputs: [] },
+  { type: "event", name: "Claimed", inputs: [ { name: "user", type: "address", indexed: true }, { name: "amount", type: "uint256", indexed: false } ] },
+  { type: "event", name: "FeeUpdated", inputs: [ { name: "feeBps", type: "uint16", indexed: false }, { name: "feeRecipient", type: "address", indexed: false } ] },
 ] as const;

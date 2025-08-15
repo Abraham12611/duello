@@ -10,6 +10,7 @@ import { betFactoryAbi } from "@/abis/betFactory";
 import { betMarketAbi } from "@/abis/betMarket";
 import { FACTORY_ADDRESS } from "@/lib/addresses";
 import { mantleSepolia } from "@/lib/chains";
+import Link from "next/link";
 
 function formatTs(ts?: bigint) {
   if (!ts) return "-";
@@ -114,16 +115,12 @@ export function MarketsList() {
               {items.map((m) => (
                 <tr key={m.address} className="border-t">
                   <td className="py-2 pr-4">
-                    <a
-                      className="text-blue-600 hover:underline"
-                      href={`https://sepolia.mantlescan.xyz/address/${m.address}`}
-                      target="_blank"
-                    >
+                    <Link className="text-blue-600 hover:underline" href={`/market/${m.address}`}>
                       {m.address}
-                    </a>
+                    </Link>
                   </td>
                   <td className="py-2 pr-4">
-                    {m.token ? (
+                    {m.token && m.token !== "0x0000000000000000000000000000000000000000" ? (
                       <a
                         className="text-blue-600 hover:underline"
                         href={`https://sepolia.mantlescan.xyz/address/${m.token}`}
@@ -132,7 +129,7 @@ export function MarketsList() {
                         {m.token}
                       </a>
                     ) : (
-                      "-"
+                      <span>MNT (native)</span>
                     )}
                   </td>
                   <td className="py-2 pr-4">{formatTs(m.start)}</td>

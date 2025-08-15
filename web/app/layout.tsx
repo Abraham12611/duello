@@ -6,6 +6,9 @@ import { HeaderNav } from "@/components/ui/HeaderNav";
 export const metadata: Metadata = {
   title: "Duello",
   description: "Trustless P2P betting on Mantle",
+  icons: {
+    icon: "/duello-logo.png",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -58,13 +58,16 @@ function TeamRow(props: { team: string; logo?: string; onCreateBet?: () => void 
 
 export function GameSchedule({ tag }: { tag: Tag }) {
   const markets = useMarkets();
-  // Hydrate from DB on first load
+  // Hydrate from DB on first load (always fetch to sync server -> local)
   useEffect(() => {
-    if (markets.length > 0) return; // already have data
     (async () => {
       try {
         const res = await fetch("/api/markets", { cache: "no-store" });
-        if (!res.ok) return;
+        if (!res.ok) {
+          const text = await res.text();
+          console.error("GET /api/markets failed:", res.status, text);
+          return;
+        }
         const data = await res.json();
         const list = (data?.markets ?? []) as Array<{
           address: `0x${string}`;
@@ -77,7 +80,9 @@ export function GameSchedule({ tag }: { tag: Tag }) {
         for (const m of list) {
           marketStore.add(m);
         }
-      } catch {}
+      } catch (e) {
+        console.error("GET /api/markets network error", e);
+      }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

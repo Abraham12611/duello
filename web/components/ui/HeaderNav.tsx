@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import React from "react";
 import { ConnectPara } from "@/components/wallet/ConnectPara";
 import { useAccount } from "wagmi";
@@ -15,7 +16,7 @@ export function HeaderNav() {
       <div className="max-w-[1400px] mx-auto px-6 py-3 flex items-center gap-4">
         {/* Logo */}
         <Link href="/" className="inline-flex items-center justify-center w-9 h-9 rounded-md border border-neutral-700 bg-[var(--surfaceElevated)]">
-          <span className="text-xs font-bold">PG</span>
+          <Image src="/duello-logo.png" alt="Duello logo" width={28} height={28} className="object-contain rounded" />
         </Link>
 
         {/* Nav icons */}

@@ -20,6 +20,20 @@ export async function POST(req: Request) {
     }
 
     const sql = getSql();
+    // Ensure table exists on first use
+    await sql`CREATE TABLE IF NOT EXISTS markets (
+      address TEXT PRIMARY KEY,
+      token TEXT NOT NULL,
+      start_iso TEXT NOT NULL,
+      tag TEXT NOT NULL,
+      team_a_name TEXT NOT NULL,
+      team_a_logo TEXT,
+      team_b_name TEXT NOT NULL,
+      team_b_logo TEXT,
+      created_at TIMESTAMPTZ DEFAULT now(),
+      locked BOOLEAN,
+      winner SMALLINT
+    )`;
     await sql(
       `INSERT INTO markets (address, token, start_iso, tag, team_a_name, team_a_logo, team_b_name, team_b_logo)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
@@ -45,6 +59,20 @@ export async function POST(req: Request) {
 export async function GET() {
   try {
     const sql = getSql();
+    // Ensure table exists before querying (fresh database)
+    await sql`CREATE TABLE IF NOT EXISTS markets (
+      address TEXT PRIMARY KEY,
+      token TEXT NOT NULL,
+      start_iso TEXT NOT NULL,
+      tag TEXT NOT NULL,
+      team_a_name TEXT NOT NULL,
+      team_a_logo TEXT,
+      team_b_name TEXT NOT NULL,
+      team_b_logo TEXT,
+      created_at TIMESTAMPTZ DEFAULT now(),
+      locked BOOLEAN,
+      winner SMALLINT
+    )`;
     const rows = (await sql<DbMarketRow[]>`SELECT * FROM markets ORDER BY start_iso ASC`) as unknown as DbMarketRow[];
     const markets = rows.map((r) => ({
       address: r.address as `0x${string}`,

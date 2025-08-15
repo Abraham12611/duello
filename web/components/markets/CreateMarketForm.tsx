@@ -47,6 +47,7 @@ export function CreateMarketForm({ prefillToken, prefillStartIso }: Props) {
   const [teamBName, setTeamBName] = useState("");
   const [teamALogo, setTeamALogo] = useState<string | undefined>(undefined);
   const [teamBLogo, setTeamBLogo] = useState<string | undefined>(undefined);
+  const [dbSaveError, setDbSaveError] = useState<string | null>(null);
 
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>, which: "A" | "B") {
     const f = e.target.files?.[0];
@@ -109,7 +110,7 @@ export function CreateMarketForm({ prefillToken, prefillStartIso }: Props) {
       // Persist to DB in background
       void (async () => {
         try {
-          await fetch("/api/markets", {
+          const res = await fetch("/api/markets", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -123,7 +124,17 @@ export function CreateMarketForm({ prefillToken, prefillStartIso }: Props) {
               teamBLogo,
             }),
           });
-        } catch {}
+          if (!res.ok) {
+            const text = await res.text();
+            console.error("Failed to persist market to DB:", res.status, text);
+            setDbSaveError(`Warning: could not save to database (${res.status}). Others may not see this market.`);
+          } else {
+            setDbSaveError(null);
+          }
+        } catch (e) {
+          console.error("POST /api/markets network error", e);
+          setDbSaveError("Warning: network error while saving to database. Others may not see this market.");
+        }
       })();
     } catch {}
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -229,6 +240,7 @@ export function CreateMarketForm({ prefillToken, prefillStartIso }: Props) {
           </div>
           {writeError && <p className="text-sm" style={{ color: "#fda4af" }}>{writeError.message}</p>}
           {confirmError && <p className="text-sm" style={{ color: "#fda4af" }}>{String(confirmError)}</p>}
+          {dbSaveError && <p className="text-sm" style={{ color: "#fda4af" }}>{dbSaveError}</p>}
           {isConfirmed && <p className="text-sm" style={{ color: "#4ade80" }}>Created! The list will update shortly.</p>}
         </form>
       )}

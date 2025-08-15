@@ -60,6 +60,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
         config={{
           appName: process.env.NEXT_PUBLIC_APP_NAME || "Duello",
         }}
+        // Enable Para Modal with payment flows (Buy/Receive/Withdraw)
+        paraModalConfig={{
+          // You can jump to a specific step using openModal({ currentStepOverride: "ADD_FUNDS_BUY" | "ADD_FUNDS_RECEIVE" | "ADD_FUNDS_WITHDRAW" })
+        }}
       >
         <WagmiWrapper>{children}</WagmiWrapper>
       </ParaProvider>

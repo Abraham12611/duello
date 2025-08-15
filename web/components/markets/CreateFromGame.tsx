@@ -50,13 +50,13 @@ export function CreateFromGame() {
   }, [items, query]);
 
   return (
-    <div className="bg-white rounded-lg border p-4 flex flex-col gap-3">
+    <div className="card p-4 flex flex-col gap-3">
       <h3 className="font-medium">Create From Game</h3>
-      <p className="text-sm text-neutral-600">Pick a match to prefill the start time. Optionally set a default stake token.</p>
+      <p className="text-sm secondary">Pick a match to prefill the start time. Optionally set a default stake token.</p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <label className="text-sm">
-          <span className="block text-neutral-600 mb-1">Default stake token (ERC20)</span>
+          <span className="block secondary mb-1">Default stake token (ERC20)</span>
           <input
             className="border rounded px-2 py-2 w-full"
             placeholder="0x..."
@@ -65,7 +65,7 @@ export function CreateFromGame() {
           />
         </label>
         <label className="text-sm">
-          <span className="block text-neutral-600 mb-1">Search matches</span>
+          <span className="block secondary mb-1">Search matches</span>
           <input
             className="border rounded px-2 py-2 w-full"
             placeholder="Search by league/teams/id"
@@ -75,7 +75,7 @@ export function CreateFromGame() {
         </label>
       </div>
 
-      <div className="max-h-64 overflow-auto border rounded">
+      <div className="max-h-64 overflow-auto rounded surface-elev">
         <ul className="divide-y">
           {filtered.map((it) => (
             <li key={it.id} className="p-2 flex items-center justify-between gap-2">
@@ -83,13 +83,7 @@ export function CreateFromGame() {
                 <div className="font-medium">{it.label}</div>
                 {it.extra && <div className="text-neutral-500">{it.extra}</div>}
               </div>
-              <button
-                className="px-3 py-1 text-sm rounded border hover:bg-neutral-50"
-                onClick={() => setSelectedStartIso(it.startIso)}
-                title="Prefill start time"
-              >
-                Prefill
-              </button>
+              <button className="btn btn-ghost text-xs" onClick={() => setSelectedStartIso(it.startIso)} title="Prefill start time">Prefill</button>
             </li>
           ))}
           {filtered.length === 0 && (

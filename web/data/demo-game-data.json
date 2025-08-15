@@ -1,0 +1,536 @@
+{
+	"version": 1,
+	"generatedAt": "2025-08-13T09:00:00Z",
+	"sports": [
+	  {
+		"sport": "basketball",
+		"league": "NBA",
+		"season": "2023-24",
+		"stage": "Finals",
+		"matches": [
+		  {
+			"id": "nba-2024-finals-g1-dal-bos",
+			"startTimeUTC": "2024-06-06T00:00:00Z",
+			"venue": "TD Garden, Boston MA",
+			"homeTeam": { "name": "Boston Celtics", "code": "BOS" },
+			"awayTeam": { "name": "Dallas Mavericks", "code": "DAL" },
+			"homeScore": 107,
+			"awayScore": 89,
+			"status": "final",
+			"winner": "home",
+			"sourceUrls": [
+			  "https://www.espn.com/nba/game/_/gameId/401656359/mavericks-celtics"
+			]
+		  },
+		  {
+			"id": "nba-2024-finals-g2-dal-bos",
+			"startTimeUTC": "2024-06-09T00:00:00Z",
+			"venue": "TD Garden, Boston MA",
+			"homeTeam": { "name": "Boston Celtics", "code": "BOS" },
+			"awayTeam": { "name": "Dallas Mavericks", "code": "DAL" },
+			"homeScore": 105,
+			"awayScore": 98,
+			"status": "final",
+			"winner": "home",
+			"sourceUrls": [
+			  "https://www.nba.com/game/dal-vs-bos-0042300402"
+			]
+		  },
+		  {
+			"id": "nba-2024-finals-g3-bos-dal",
+			"startTimeUTC": "2024-06-12T00:00:00Z",
+			"venue": "American Airlines Center, Dallas TX",
+			"homeTeam": { "name": "Dallas Mavericks", "code": "DAL" },
+			"awayTeam": { "name": "Boston Celtics", "code": "BOS" },
+			"homeScore": 99,
+			"awayScore": 106,
+			"status": "final",
+			"winner": "away",
+			"sourceUrls": [
+			  "https://www.espn.com/nba/game/_/gameId/401656361/celtics-mavericks"
+			]
+		  },
+		  {
+			"id": "nba-2024-finals-g4-bos-dal",
+			"startTimeUTC": "2024-06-14T00:00:00Z",
+			"venue": "American Airlines Center, Dallas TX",
+			"homeTeam": { "name": "Dallas Mavericks", "code": "DAL" },
+			"awayTeam": { "name": "Boston Celtics", "code": "BOS" },
+			"homeScore": 122,
+			"awayScore": 84,
+			"status": "final",
+			"winner": "home",
+			"sourceUrls": [
+			  "https://www.espn.com/nba/game/_/gameId/401656362/celtics-mavericks"
+			]
+		  },
+		  {
+			"id": "nba-2024-finals-g5-dal-bos",
+			"startTimeUTC": "2024-06-17T00:00:00Z",
+			"venue": "TD Garden, Boston MA",
+			"homeTeam": { "name": "Boston Celtics", "code": "BOS" },
+			"awayTeam": { "name": "Dallas Mavericks", "code": "DAL" },
+			"homeScore": 106,
+			"awayScore": 88,
+			"status": "final",
+			"winner": "home",
+			"sourceUrls": [
+			  "https://www.espn.com/nba/game/_/gameId/401656363/mavericks-celtics"
+			]
+		  }
+		]
+	  },
+	  {
+		"sport": "football",
+		"league": "Premier League",
+		"season": "2023-24",
+		"stage": "Matchweek 38",
+		"matches": [
+		  {
+			"id": "epl-2024-05-19-mci-whu",
+			"startTimeUTC": "2024-05-19T15:00:00Z",
+			"venue": "Etihad Stadium, Manchester",
+			"homeTeam": { "name": "Manchester City", "code": "MCI" },
+			"awayTeam": { "name": "West Ham United", "code": "WHU" },
+			"homeScore": 3,
+			"awayScore": 1,
+			"status": "final",
+			"winner": "home",
+			"sourceUrls": [
+			  "https://www.bbc.com/sport/football/68904809"
+			]
+		  },
+		  {
+			"id": "epl-2024-05-19-ars-eve",
+			"startTimeUTC": "2024-05-19T15:00:00Z",
+			"venue": "Emirates Stadium, London",
+			"homeTeam": { "name": "Arsenal", "code": "ARS" },
+			"awayTeam": { "name": "Everton", "code": "EVE" },
+			"homeScore": 2,
+			"awayScore": 1,
+			"status": "final",
+			"winner": "home",
+			"sourceUrls": [
+			  "https://www.bbc.com/sport/football/68904810"
+			]
+		  },
+		  {
+			"id": "epl-2024-05-19-liv-wol",
+			"startTimeUTC": "2024-05-19T15:00:00Z",
+			"venue": "Anfield, Liverpool",
+			"homeTeam": { "name": "Liverpool", "code": "LIV" },
+			"awayTeam": { "name": "Wolverhampton Wanderers", "code": "WOL" },
+			"homeScore": 2,
+			"awayScore": 0,
+			"status": "final",
+			"winner": "home",
+			"sourceUrls": [
+			  "https://www.theguardian.com/football/live/2024/may/19/liverpool-v-wolves-jurgen-klopp-burnley-v-forest-luton-v-fulham-and-more-premier-league-final-day-live"
+			]
+		  },
+		  {
+			"id": "epl-2024-05-19-tot-shu",
+			"startTimeUTC": "2024-05-19T15:00:00Z",
+			"venue": "Bramall Lane, Sheffield",
+			"homeTeam": { "name": "Sheffield United", "code": "SHU" },
+			"awayTeam": { "name": "Tottenham Hotspur", "code": "TOT" },
+			"homeScore": 0,
+			"awayScore": 3,
+			"status": "final",
+			"winner": "away",
+			"sourceUrls": [
+			  "https://www.bbc.com/sport/football/68904807"
+			]
+		  },
+		  {
+			"id": "epl-2024-05-19-che-bou",
+			"startTimeUTC": "2024-05-19T15:00:00Z",
+			"venue": "Stamford Bridge, London",
+			"homeTeam": { "name": "Chelsea", "code": "CHE" },
+			"awayTeam": { "name": "Bournemouth", "code": "BOU" },
+			"homeScore": 2,
+			"awayScore": 1,
+			"status": "final",
+			"winner": "home",
+			"sourceUrls": [
+			  "https://www.espn.in/football/match/_/gameId/671410/afc-bournemouth-chelsea"
+			]
+		  },
+		  {
+			"id": "epl-2024-05-19-bha-mun",
+			"startTimeUTC": "2024-05-19T15:00:00Z",
+			"venue": "Amex Stadium, Falmer",
+			"homeTeam": { "name": "Brighton & Hove Albion", "code": "BHA" },
+			"awayTeam": { "name": "Manchester United", "code": "MUN" },
+			"homeScore": 0,
+			"awayScore": 2,
+			"status": "final",
+			"winner": "away",
+			"sourceUrls": [
+			  "https://www.espn.com/soccer/match/_/gameId/671403/manchester-united-brighton-hove-albion"
+			]
+		  }
+		]
+	  },
+	  {
+		"sport": "football",
+		"league": "LaLiga",
+		"season": "2023-24",
+		"matches": [
+		  {
+			"id": "laliga-2024-04-21-rma-bar",
+			"startTimeUTC": "2024-04-21T19:00:00Z",
+			"venue": "Santiago Bernabéu, Madrid",
+			"homeTeam": { "name": "Real Madrid", "code": "RMA" },
+			"awayTeam": { "name": "FC Barcelona", "code": "BAR" },
+			"homeScore": 3,
+			"awayScore": 2,
+			"status": "final",
+			"winner": "home",
+			"sourceUrls": [
+			  "https://www.espn.in/football/match/_/gameId/674334/real-madrid-barcelona"
+			]
+		  },
+		  {
+			"id": "laliga-2024-05-25-rma-bet",
+			"startTimeUTC": "2024-05-25T19:00:00Z",
+			"venue": "Santiago Bernabéu, Madrid",
+			"homeTeam": { "name": "Real Madrid", "code": "RMA" },
+			"awayTeam": { "name": "Real Betis", "code": "BET" },
+			"homeScore": 0,
+			"awayScore": 0,
+			"status": "final",
+			"winner": "draw",
+			"sourceUrls": [
+			  "https://www.bbc.com/sport/football/69118741"
+			]
+		  },
+		  {
+			"id": "laliga-2024-03-17-atm-bar",
+			"startTimeUTC": "2024-03-17T20:00:00Z",
+			"venue": "Cívitas Metropolitano, Madrid",
+			"homeTeam": { "name": "Atlético Madrid", "code": "ATM" },
+			"awayTeam": { "name": "FC Barcelona", "code": "BAR" },
+			"homeScore": 0,
+			"awayScore": 3,
+			"status": "final",
+			"winner": "away",
+			"sourceUrls": [
+			  "https://www.espn.com/soccer/match/_/gameId/674292/barcelona-atletico-madrid"
+			]
+		  },
+		  {
+			"id": "laliga-2024-05-04-rma-cad",
+			"startTimeUTC": "2024-05-04T14:15:00Z",
+			"venue": "Santiago Bernabéu, Madrid",
+			"homeTeam": { "name": "Real Madrid", "code": "RMA" },
+			"awayTeam": { "name": "Cádiz", "code": "CAD" },
+			"homeScore": 3,
+			"awayScore": 0,
+			"status": "final",
+			"winner": "home",
+			"sourceUrls": [
+			  "https://www.espn.com/soccer/match/_/gameId/674346/cadiz-real-madrid"
+			]
+		  }
+		]
+	  },
+	  {
+		"sport": "football",
+		"league": "Serie A",
+		"season": "2023-24",
+		"matches": [
+		  {
+			"id": "seriea-2024-04-22-mil-int",
+			"startTimeUTC": "2024-04-22T18:45:00Z",
+			"venue": "San Siro, Milan",
+			"homeTeam": { "name": "AC Milan", "code": "MIL" },
+			"awayTeam": { "name": "Inter", "code": "INT" },
+			"homeScore": 1,
+			"awayScore": 2,
+			"status": "final",
+			"winner": "away",
+			"sourceUrls": [
+			  "https://www.espn.com/soccer/match/_/gameId/679168/internazionale-ac-milan"
+			]
+		  },
+		  {
+			"id": "seriea-2024-04-28-nap-rom",
+			"startTimeUTC": "2024-04-28T16:00:00Z",
+			"venue": "Diego Armando Maradona, Naples",
+			"homeTeam": { "name": "Napoli", "code": "NAP" },
+			"awayTeam": { "name": "AS Roma", "code": "ROM" },
+			"homeScore": 2,
+			"awayScore": 2,
+			"status": "final",
+			"winner": "draw",
+			"sourceUrls": [
+			  "https://www.espn.com/soccer/match/_/gameId/679174/as-roma-napoli"
+			]
+		  },
+		  {
+			"id": "seriea-2024-03-30-laz-juv",
+			"startTimeUTC": "2024-03-30T19:45:00Z",
+			"venue": "Stadio Olimpico, Rome",
+			"homeTeam": { "name": "Lazio", "code": "LAZ" },
+			"awayTeam": { "name": "Juventus", "code": "JUV" },
+			"homeScore": 1,
+			"awayScore": 0,
+			"status": "final",
+			"winner": "home",
+			"sourceUrls": [
+			  "https://www.espn.com/soccer/match/_/gameId/679139/juventus-lazio"
+			]
+		  },
+		  {
+			"id": "seriea-2024-05-26-ata-tor",
+			"startTimeUTC": "2024-05-26T16:00:00Z",
+			"venue": "Gewiss Stadium, Bergamo",
+			"homeTeam": { "name": "Atalanta", "code": "ATA" },
+			"awayTeam": { "name": "Torino", "code": "TOR" },
+			"homeScore": 3,
+			"awayScore": 0,
+			"status": "final",
+			"winner": "home",
+			"sourceUrls": [
+			  "https://www.espn.com/soccer/match/_/gameId/679210/torino-atalanta"
+			]
+		  }
+		]
+	  },
+	  {
+		"sport": "football",
+		"league": "UEFA Champions League",
+		"season": "2023-24",
+		"matches": [
+		  {
+			"id": "ucl-2024-06-01-rma-bvb-final",
+			"startTimeUTC": "2024-06-01T19:00:00Z",
+			"venue": "Wembley Stadium, London",
+			"homeTeam": { "name": "Real Madrid", "code": "RMA" },
+			"awayTeam": { "name": "Borussia Dortmund", "code": "BVB" },
+			"homeScore": 2,
+			"awayScore": 0,
+			"status": "final",
+			"winner": "home",
+			"sourceUrls": [
+			  "https://www.uefa.com/uefachampionsleague/news/028e-1a6aa87f504e-189a38d78f29-1000--report-real-madrid-dortmund/"
+			]
+		  },
+		  {
+			"id": "ucl-2024-05-08-rma-bayern-sf2",
+			"startTimeUTC": "2024-05-08T19:00:00Z",
+			"venue": "Santiago Bernabéu, Madrid",
+			"homeTeam": { "name": "Real Madrid", "code": "RMA" },
+			"awayTeam": { "name": "Bayern Munich", "code": "FCB" },
+			"homeScore": 2,
+			"awayScore": 1,
+			"status": "final",
+			"winner": "home",
+			"sourceUrls": [
+			  "https://www.uefa.com/uefachampionsleague/news/028e-1a65b7d3adf8-5e5e6b6a5b39-1000--report-real-madrid-bayern/"
+			]
+		  },
+		  {
+			"id": "ucl-2024-04-30-bayern-rma-sf1",
+			"startTimeUTC": "2024-04-30T19:00:00Z",
+			"venue": "Allianz Arena, Munich",
+			"homeTeam": { "name": "Bayern Munich", "code": "FCB" },
+			"awayTeam": { "name": "Real Madrid", "code": "RMA" },
+			"homeScore": 2,
+			"awayScore": 2,
+			"status": "final",
+			"winner": "draw",
+			"sourceUrls": [
+			  "https://www.uefa.com/uefachampionsleague/news/028e-1a62f0a22e22-3772dce0b5f2-1000--report-bayern-real-madrid/"
+			]
+		  }
+		]
+	  },
+	  {
+		"sport": "football",
+		"league": "UEFA Europa League",
+		"season": "2023-24",
+		"matches": [
+		  {
+			"id": "uel-2024-05-22-ata-lev-final",
+			"startTimeUTC": "2024-05-22T19:00:00Z",
+			"venue": "Aviva Stadium, Dublin",
+			"homeTeam": { "name": "Atalanta", "code": "ATA" },
+			"awayTeam": { "name": "Bayer Leverkusen", "code": "B04" },
+			"homeScore": 3,
+			"awayScore": 0,
+			"status": "final",
+			"winner": "home",
+			"sourceUrls": [
+			  "https://www.uefa.com/uefaeuropaleague/news/028e-1a64cb231c1b-9a43f6fd3a86-1000--report-atalanta-leverkusen/"
+			]
+		  },
+		  {
+			"id": "uel-2024-05-09-lev-rom-sf2",
+			"startTimeUTC": "2024-05-09T19:00:00Z",
+			"venue": "BayArena, Leverkusen",
+			"homeTeam": { "name": "Bayer Leverkusen", "code": "B04" },
+			"awayTeam": { "name": "AS Roma", "code": "ROM" },
+			"homeScore": 2,
+			"awayScore": 2,
+			"status": "final",
+			"winner": "draw",
+			"sourceUrls": [
+			  "https://www.uefa.com/uefaeuropaleague/news/028e-1a6438f3a1f7-4d3c6a5af648-1000--report-leverkusen-roma/"
+			]
+		  },
+		  {
+			"id": "uel-2024-05-02-rom-lev-sf1",
+			"startTimeUTC": "2024-05-02T19:00:00Z",
+			"venue": "Stadio Olimpico, Rome",
+			"homeTeam": { "name": "AS Roma", "code": "ROM" },
+			"awayTeam": { "name": "Bayer Leverkusen", "code": "B04" },
+			"homeScore": 0,
+			"awayScore": 2,
+			"status": "final",
+			"winner": "away",
+			"sourceUrls": [
+			  "https://www.uefa.com/uefaeuropaleague/news/028e-1a62692be63a-5a1961c6984b-1000--report-roma-leverkusen/"
+			]
+		  }
+		]
+	  },
+	  {
+		"sport": "baseball",
+		"league": "MLB",
+		"season": "2023 World Series",
+		"stage": "World Series",
+		"matches": [
+		  {
+			"id": "mlb-2023-ws-g1-ari-tex",
+			"startTimeUTC": "2023-10-27T23:03:00Z",
+			"venue": "Globe Life Field, Arlington TX",
+			"homeTeam": { "name": "Texas Rangers", "code": "TEX" },
+			"awayTeam": { "name": "Arizona Diamondbacks", "code": "ARI" },
+			"homeScore": 6,
+			"awayScore": 5,
+			"status": "final",
+			"winner": "home",
+			"sourceUrls": [
+			  "https://www.espn.com/mlb/game/_/gameId/401581101/diamondbacks-rangers",
+			  "https://www.mlb.com/news/rangers-win-world-series-game-1-2023"
+			]
+		  },
+		  {
+			"id": "mlb-2023-ws-g2-ari-tex",
+			"startTimeUTC": "2023-10-28T23:03:00Z",
+			"venue": "Globe Life Field, Arlington TX",
+			"homeTeam": { "name": "Texas Rangers", "code": "TEX" },
+			"awayTeam": { "name": "Arizona Diamondbacks", "code": "ARI" },
+			"homeScore": 1,
+			"awayScore": 9,
+			"status": "final",
+			"winner": "away",
+			"sourceUrls": [
+			  "https://www.espn.com/mlb/game/_/gameId/401581100/diamondbacks-rangers",
+			  "https://www.mlb.com/news/d-backs-win-2023-world-series-game-2"
+			]
+		  },
+		  {
+			"id": "mlb-2023-ws-g3-tex-ari",
+			"startTimeUTC": "2023-10-30T22:03:00Z",
+			"venue": "Chase Field, Phoenix AZ",
+			"homeTeam": { "name": "Arizona Diamondbacks", "code": "ARI" },
+			"awayTeam": { "name": "Texas Rangers", "code": "TEX" },
+			"homeScore": 1,
+			"awayScore": 3,
+			"status": "final",
+			"winner": "away",
+			"sourceUrls": [
+			  "https://www.espn.com/mlb/game/_/gameId/401581099/rangers-diamondbacks",
+			  "https://www.mlb.com/news/rangers-win-world-series-game-3-2023"
+			]
+		  },
+		  {
+			"id": "mlb-2023-ws-g4-tex-ari",
+			"startTimeUTC": "2023-10-31T22:03:00Z",
+			"venue": "Chase Field, Phoenix AZ",
+			"homeTeam": { "name": "Arizona Diamondbacks", "code": "ARI" },
+			"awayTeam": { "name": "Texas Rangers", "code": "TEX" },
+			"homeScore": 7,
+			"awayScore": 11,
+			"status": "final",
+			"winner": "away",
+			"sourceUrls": [
+			  "https://www.espn.com/mlb/game/_/gameId/401581098/rangers-diamondbacks",
+			  "https://www.mlb.com/news/rangers-win-2023-world-series-game-4"
+			]
+		  },
+		  {
+			"id": "mlb-2023-ws-g5-tex-ari",
+			"startTimeUTC": "2023-11-01T20:03:00Z",
+			"venue": "Chase Field, Phoenix AZ",
+			"homeTeam": { "name": "Arizona Diamondbacks", "code": "ARI" },
+			"awayTeam": { "name": "Texas Rangers", "code": "TEX" },
+			"homeScore": 0,
+			"awayScore": 5,
+			"status": "final",
+			"winner": "away",
+			"sourceUrls": [
+			  "https://www.espn.com/mlb/game/_/gameId/401581097/rangers-diamondbacks",
+			  "https://www.mlb.com/news/rangers-win-world-series-2023"
+			]
+		  }
+		]
+	  },
+	  {
+		"sport": "hockey",
+		"league": "NHL",
+		"season": "2023-24",
+		"stage": "Stanley Cup Final",
+		"matches": [
+		  {
+			"id": "nhl-2024-scf-g7-edm-fla",
+			"startTimeUTC": "2024-06-24T23:00:00Z",
+			"venue": "Amerant Bank Arena, Sunrise FL",
+			"homeTeam": { "name": "Florida Panthers", "code": "FLA" },
+			"awayTeam": { "name": "Edmonton Oilers", "code": "EDM" },
+			"homeScore": 2,
+			"awayScore": 1,
+			"status": "final",
+			"winner": "home",
+			"sourceUrls": [
+			  "https://www.espn.com/nhl/game/_/gameId/401675111/oilers-panthers",
+			  "https://www.nhl.com/gamecenter/edm-vs-fla/2024/06/24/2023030417"
+			]
+		  },
+		  {
+			"id": "nhl-2024-scf-g5-edm-fla",
+			"startTimeUTC": "2024-06-18T23:00:00Z",
+			"venue": "Amerant Bank Arena, Sunrise FL",
+			"homeTeam": { "name": "Florida Panthers", "code": "FLA" },
+			"awayTeam": { "name": "Edmonton Oilers", "code": "EDM" },
+			"homeScore": 3,
+			"awayScore": 5,
+			"status": "final",
+			"winner": "away",
+			"sourceUrls": [
+			  "https://www.espn.co.uk/nhl/game/_/gameId/401675109/oilers-panthers",
+			  "https://www.nhl.com/oilers/news/game-recap-oilers-5-panthers-3-game-5-06-18-24"
+			]
+		  },
+		  {
+			"id": "nhl-2024-scf-g4-fla-edm",
+			"startTimeUTC": "2024-06-15T00:00:00Z",
+			"venue": "Rogers Place, Edmonton AB",
+			"homeTeam": { "name": "Edmonton Oilers", "code": "EDM" },
+			"awayTeam": { "name": "Florida Panthers", "code": "FLA" },
+			"homeScore": 8,
+			"awayScore": 1,
+			"status": "final",
+			"winner": "home",
+			"sourceUrls": [
+			  "https://www.espn.com/nhl/game/_/gameId/401675108/panthers-oilers",
+			  "https://www.nhl.com/gamecenter/edm-vs-fla/2024/06/15/2023030414"
+			]
+		  }
+		]
+	  }
+	]
+  }

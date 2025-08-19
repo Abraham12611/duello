@@ -14,7 +14,7 @@ type Props = {
 };
 
 export function CreateMarketForm({ prefillToken, prefillStartIso }: Props) {
-  const factory = FACTORY_ADDRESS;
+  const factory = process.env.NEXT_PUBLIC_FACTORY_ADDRESS;
   const { address } = useAccount();
   const ZERO = "0x0000000000000000000000000000000000000000" as const;
 

@@ -36,6 +36,18 @@ export default function MarketDetailsPage() {
   const params = useParams<{ address: string }>();
   const market = (params?.address as `0x${string}`) ?? ("0x" as const);
   const { address: user } = useAccount();
+  // Local refresh key to force refetch of reads when key events occur
+  const [refreshKey, setRefreshKey] = useState(0);
+  // Local flags in case an event is seen but state read lags
+  const [sawResolved, setSawResolved] = useState(false);
+  const [sawVoided, setSawVoided] = useState(false);
+
+  // Periodic clock to refresh boundary-dependent UI (start/end/void)
+  const [clock, setClock] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setClock(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
 
   const { data: token } = useReadContract({
     chainId: mantleSepolia.id,
@@ -63,7 +75,9 @@ export default function MarketDetailsPage() {
     address: market,
     abi: betMarketAbi,
     functionName: "state",
-    query: { enabled: !!market },
+    // Scope key to force refetch when refreshKey or clock tick changes
+    scopeKey: `state-${refreshKey}-${Math.floor(clock / 1000)}`,
+    query: { enabled: !!market, refetchInterval: 1000, staleTime: 0 },
   });
   const { data: totals } = useReadContracts({
     allowFailure: true,
@@ -120,12 +134,6 @@ export default function MarketDetailsPage() {
   const isResolved = Number(state ?? -1) === 2;
   const isVoided = Number(state ?? -1) === 3;
 
-  // Periodic clock to refresh boundary-dependent UI (start/end/void)
-  const [clock, setClock] = useState(() => Date.now());
-  useEffect(() => {
-    const id = setInterval(() => setClock(Date.now()), 1000);
-    return () => clearInterval(id);
-  }, []);
   const nowSec = Math.floor(clock / 1000);
   const startSec = Number((startTime as bigint) ?? 0n);
   const endSec = Number((endTime as bigint) ?? 0n);
@@ -168,10 +176,40 @@ export default function MarketDetailsPage() {
       // no-op; read hooks will refetch due to cache invalidation from wagmi v2 when enabled; otherwise, rely on user interactions
     },
   });
-  useWatchContractEvent({ chainId: mantleSepolia.id, address: market, abi: betMarketAbi, eventName: "Locked" });
-  useWatchContractEvent({ chainId: mantleSepolia.id, address: market, abi: betMarketAbi, eventName: "Resolved" });
-  useWatchContractEvent({ chainId: mantleSepolia.id, address: market, abi: betMarketAbi, eventName: "Voided" });
-  useWatchContractEvent({ chainId: mantleSepolia.id, address: market, abi: betMarketAbi, eventName: "Claimed" });
+  useWatchContractEvent({
+    chainId: mantleSepolia.id,
+    address: market,
+    abi: betMarketAbi,
+    eventName: "Locked",
+    onLogs: () => setRefreshKey((k) => k + 1),
+  });
+  useWatchContractEvent({
+    chainId: mantleSepolia.id,
+    address: market,
+    abi: betMarketAbi,
+    eventName: "Resolved",
+    onLogs: () => {
+      setSawResolved(true);
+      setRefreshKey((k) => k + 1);
+    },
+  });
+  useWatchContractEvent({
+    chainId: mantleSepolia.id,
+    address: market,
+    abi: betMarketAbi,
+    eventName: "Voided",
+    onLogs: () => {
+      setSawVoided(true);
+      setRefreshKey((k) => k + 1);
+    },
+  });
+  useWatchContractEvent({
+    chainId: mantleSepolia.id,
+    address: market,
+    abi: betMarketAbi,
+    eventName: "Claimed",
+    onLogs: () => setRefreshKey((k) => k + 1),
+  });
 
   function doDeposit(e: React.FormEvent) {
     e.preventDefault();
@@ -206,7 +244,7 @@ export default function MarketDetailsPage() {
   }
 
   function doClaim() {
-    if (!(isResolved || isVoided)) return;
+    if (!(isResolved || isVoided || sawResolved || sawVoided)) return;
     writeContract({ chainId: mantleSepolia.id, address: market, abi: betMarketAbi, functionName: "claim" });
   }
 
@@ -319,7 +357,7 @@ export default function MarketDetailsPage() {
         {canVoidAfterEnd && (
           <button className="px-3 py-2 rounded border" onClick={doVoidAfterEnd} disabled={isPending || confirming}>Void (past end)</button>
         )}
-        {(isResolved || isVoided) && (
+        {((isResolved || isVoided) || (sawResolved || sawVoided)) && (
           <button className="px-3 py-2 rounded border" onClick={doClaim} disabled={isPending || confirming}>Claim</button>
         )}
       </div>
@@ -332,7 +370,7 @@ export default function MarketDetailsPage() {
         </ul>
         <div className="mt-2">
           <div className="font-medium">Debug</div>
-          <div>state={Number(state ?? -1)} now={nowSec} start={startSec} isNative={String(isNative)}</div>
+          <div>state={Number(state ?? -1)} now={nowSec} start={startSec} isNative={String(isNative)} sawResolved={String(sawResolved)} sawVoided={String(sawVoided)}</div>
         </div>
       </div>
     </div>

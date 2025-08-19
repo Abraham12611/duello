@@ -28,23 +28,37 @@ export interface BetMarketInterface extends Interface {
     nameOrSignature:
       | "claim"
       | "deposit"
+      | "endTime"
+      | "feeBps"
+      | "feeRecipient"
       | "lock"
       | "owner"
       | "pause"
       | "paused"
       | "renounceOwnership"
       | "resolve"
+      | "resolveWithScores"
+      | "scoreA"
+      | "scoreB"
+      | "setFee"
+      | "stakeOf"
       | "startTime"
       | "state"
       | "token"
+      | "totalA"
+      | "totalB"
       | "transferOwnership"
       | "unpause"
+      | "voidAfterEnd"
+      | "voidByOwner"
+      | "winningSide"
   ): FunctionFragment;
 
   getEvent(
     nameOrSignatureOrTopic:
       | "Claimed"
       | "Deposited"
+      | "FeeUpdated"
       | "Locked"
       | "OwnershipTransferred"
       | "Paused"
@@ -56,7 +70,13 @@ export interface BetMarketInterface extends Interface {
   encodeFunctionData(functionFragment: "claim", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "deposit",
-    values: [BigNumberish, BigNumberish]
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(functionFragment: "endTime", values?: undefined): string;
+  encodeFunctionData(functionFragment: "feeBps", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "feeRecipient",
+    values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "lock", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
@@ -70,17 +90,51 @@ export interface BetMarketInterface extends Interface {
     functionFragment: "resolve",
     values: [BigNumberish]
   ): string;
+  encodeFunctionData(
+    functionFragment: "resolveWithScores",
+    values: [BigNumberish, BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(functionFragment: "scoreA", values?: undefined): string;
+  encodeFunctionData(functionFragment: "scoreB", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "setFee",
+    values: [BigNumberish, AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "stakeOf",
+    values: [AddressLike, BigNumberish]
+  ): string;
   encodeFunctionData(functionFragment: "startTime", values?: undefined): string;
   encodeFunctionData(functionFragment: "state", values?: undefined): string;
   encodeFunctionData(functionFragment: "token", values?: undefined): string;
+  encodeFunctionData(functionFragment: "totalA", values?: undefined): string;
+  encodeFunctionData(functionFragment: "totalB", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "transferOwnership",
     values: [AddressLike]
   ): string;
   encodeFunctionData(functionFragment: "unpause", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "voidAfterEnd",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "voidByOwner",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "winningSide",
+    values?: undefined
+  ): string;
 
   decodeFunctionResult(functionFragment: "claim", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "endTime", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "feeBps", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "feeRecipient",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "lock", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "pause", data: BytesLike): Result;
@@ -90,14 +144,36 @@ export interface BetMarketInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "resolve", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "resolveWithScores",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "scoreA", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "scoreB", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "setFee", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "stakeOf", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "startTime", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "state", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "token", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "totalA", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "totalB", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "transferOwnership",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "unpause", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "voidAfterEnd",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "voidByOwner",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "winningSide",
+    data: BytesLike
+  ): Result;
 }
 
 export namespace ClaimedEvent {
@@ -124,6 +200,19 @@ export namespace DepositedEvent {
     user: string;
     side: bigint;
     amount: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace FeeUpdatedEvent {
+  export type InputTuple = [feeBps: BigNumberish, feeRecipient: AddressLike];
+  export type OutputTuple = [feeBps: bigint, feeRecipient: string];
+  export interface OutputObject {
+    feeBps: bigint;
+    feeRecipient: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -247,11 +336,13 @@ export interface BetMarket extends BaseContract {
 
   claim: TypedContractMethod<[], [void], "nonpayable">;
 
-  deposit: TypedContractMethod<
-    [arg0: BigNumberish, arg1: BigNumberish],
-    [void],
-    "payable"
-  >;
+  deposit: TypedContractMethod<[side: BigNumberish], [void], "payable">;
+
+  endTime: TypedContractMethod<[], [bigint], "view">;
+
+  feeBps: TypedContractMethod<[], [bigint], "view">;
+
+  feeRecipient: TypedContractMethod<[], [string], "view">;
 
   lock: TypedContractMethod<[], [void], "nonpayable">;
 
@@ -263,13 +354,39 @@ export interface BetMarket extends BaseContract {
 
   renounceOwnership: TypedContractMethod<[], [void], "nonpayable">;
 
-  resolve: TypedContractMethod<[arg0: BigNumberish], [void], "nonpayable">;
+  resolve: TypedContractMethod<[winner: BigNumberish], [void], "nonpayable">;
+
+  resolveWithScores: TypedContractMethod<
+    [winner: BigNumberish, _scoreA: BigNumberish, _scoreB: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
+  scoreA: TypedContractMethod<[], [bigint], "view">;
+
+  scoreB: TypedContractMethod<[], [bigint], "view">;
+
+  setFee: TypedContractMethod<
+    [_feeBps: BigNumberish, _recipient: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
+  stakeOf: TypedContractMethod<
+    [user: AddressLike, side: BigNumberish],
+    [bigint],
+    "view"
+  >;
 
   startTime: TypedContractMethod<[], [bigint], "view">;
 
   state: TypedContractMethod<[], [bigint], "view">;
 
   token: TypedContractMethod<[], [string], "view">;
+
+  totalA: TypedContractMethod<[], [bigint], "view">;
+
+  totalB: TypedContractMethod<[], [bigint], "view">;
 
   transferOwnership: TypedContractMethod<
     [newOwner: AddressLike],
@@ -278,6 +395,12 @@ export interface BetMarket extends BaseContract {
   >;
 
   unpause: TypedContractMethod<[], [void], "nonpayable">;
+
+  voidAfterEnd: TypedContractMethod<[], [void], "nonpayable">;
+
+  voidByOwner: TypedContractMethod<[], [void], "nonpayable">;
+
+  winningSide: TypedContractMethod<[], [bigint], "view">;
 
   getFunction<T extends ContractMethod = ContractMethod>(
     key: string | FunctionFragment
@@ -288,11 +411,16 @@ export interface BetMarket extends BaseContract {
   ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "deposit"
-  ): TypedContractMethod<
-    [arg0: BigNumberish, arg1: BigNumberish],
-    [void],
-    "payable"
-  >;
+  ): TypedContractMethod<[side: BigNumberish], [void], "payable">;
+  getFunction(
+    nameOrSignature: "endTime"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "feeBps"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "feeRecipient"
+  ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "lock"
   ): TypedContractMethod<[], [void], "nonpayable">;
@@ -310,7 +438,34 @@ export interface BetMarket extends BaseContract {
   ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "resolve"
-  ): TypedContractMethod<[arg0: BigNumberish], [void], "nonpayable">;
+  ): TypedContractMethod<[winner: BigNumberish], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "resolveWithScores"
+  ): TypedContractMethod<
+    [winner: BigNumberish, _scoreA: BigNumberish, _scoreB: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "scoreA"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "scoreB"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "setFee"
+  ): TypedContractMethod<
+    [_feeBps: BigNumberish, _recipient: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "stakeOf"
+  ): TypedContractMethod<
+    [user: AddressLike, side: BigNumberish],
+    [bigint],
+    "view"
+  >;
   getFunction(
     nameOrSignature: "startTime"
   ): TypedContractMethod<[], [bigint], "view">;
@@ -321,11 +476,26 @@ export interface BetMarket extends BaseContract {
     nameOrSignature: "token"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
+    nameOrSignature: "totalA"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "totalB"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
     nameOrSignature: "transferOwnership"
   ): TypedContractMethod<[newOwner: AddressLike], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "unpause"
   ): TypedContractMethod<[], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "voidAfterEnd"
+  ): TypedContractMethod<[], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "voidByOwner"
+  ): TypedContractMethod<[], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "winningSide"
+  ): TypedContractMethod<[], [bigint], "view">;
 
   getEvent(
     key: "Claimed"
@@ -340,6 +510,13 @@ export interface BetMarket extends BaseContract {
     DepositedEvent.InputTuple,
     DepositedEvent.OutputTuple,
     DepositedEvent.OutputObject
+  >;
+  getEvent(
+    key: "FeeUpdated"
+  ): TypedContractEvent<
+    FeeUpdatedEvent.InputTuple,
+    FeeUpdatedEvent.OutputTuple,
+    FeeUpdatedEvent.OutputObject
   >;
   getEvent(
     key: "Locked"
@@ -405,6 +582,17 @@ export interface BetMarket extends BaseContract {
       DepositedEvent.InputTuple,
       DepositedEvent.OutputTuple,
       DepositedEvent.OutputObject
+    >;
+
+    "FeeUpdated(uint16,address)": TypedContractEvent<
+      FeeUpdatedEvent.InputTuple,
+      FeeUpdatedEvent.OutputTuple,
+      FeeUpdatedEvent.OutputObject
+    >;
+    FeeUpdated: TypedContractEvent<
+      FeeUpdatedEvent.InputTuple,
+      FeeUpdatedEvent.OutputTuple,
+      FeeUpdatedEvent.OutputObject
     >;
 
     "Locked(uint256)": TypedContractEvent<

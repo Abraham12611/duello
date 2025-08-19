@@ -7,6 +7,7 @@ import { useMarkets, marketStore, type Tag } from "@/lib/marketStore";
 import { betMarketAbi } from "@/abis/betMarket";
 import { mantleSepolia } from "@/lib/chains";
 import { BetModal } from "./bet/BetModal";
+import { ResolveModal } from "./owner/ResolveModal";
 
 function DayTime({ iso }: { iso: string }) {
   const d = new Date(iso);
@@ -73,6 +74,7 @@ export function GameSchedule({ tag }: { tag: Tag }) {
           address: `0x${string}`;
           token: `0x${string}`;
           startIso: string;
+          endIso?: string;
           tag: Tag;
           teamA: { name: string; logoDataUrl?: string };
           teamB: { name: string; logoDataUrl?: string };
@@ -95,6 +97,10 @@ export function GameSchedule({ tag }: { tag: Tag }) {
   const { writeContract } = useWriteContract();
   const [betCtx, setBetCtx] = useState<
     | { market: `0x${string}`; team: string; opponent: string; side: 0 | 1 }
+    | null
+  >(null);
+  const [resolveCtx, setResolveCtx] = useState<
+    | { market: `0x${string}`; teamA: string; teamB: string }
     | null
   >(null);
 
@@ -141,13 +147,23 @@ export function GameSchedule({ tag }: { tag: Tag }) {
                     >Lock</button>
                     <button
                       className="btn btn-ghost text-xs"
-                      onClick={() => writeContract({ chainId: mantleSepolia.id, address: m.address, abi: betMarketAbi, functionName: "resolve", args: [0] })}
-                    >Resolve A</button>
-                    <button
-                      className="btn btn-ghost text-xs"
-                      onClick={() => writeContract({ chainId: mantleSepolia.id, address: m.address, abi: betMarketAbi, functionName: "resolve", args: [1] })}
-                    >Resolve B</button>
-                    <button className="btn btn-ghost text-xs" onClick={() => marketStore.remove(m.address)}>Delete</button>
+                      onClick={() => setResolveCtx({ market: m.address, teamA: m.teamA.name, teamB: m.teamB.name })}
+                    >Resolve</button>
+                    <button className="btn btn-ghost text-xs" onClick={async () => {
+                      try {
+                        const res = await fetch(`/api/markets?address=${m.address}`, { method: "DELETE" });
+                        if (res.ok) {
+                          marketStore.remove(m.address);
+                        } else {
+                          const text = await res.text().catch(() => "");
+                          console.error("DELETE /api/markets failed:", res.status, text);
+                          alert("Failed to delete market from database. Please try again.");
+                        }
+                      } catch (e) {
+                        console.error("DELETE /api/markets network error", e);
+                        alert("Network error deleting market. Please check your connection and try again.");
+                      }
+                    }}>Delete</button>
                   </div>
                 )}
               </div>
@@ -182,13 +198,23 @@ export function GameSchedule({ tag }: { tag: Tag }) {
                     >Lock</button>
                     <button
                       className="btn btn-ghost text-xs"
-                      onClick={() => writeContract({ chainId: mantleSepolia.id, address: m.address, abi: betMarketAbi, functionName: "resolve", args: [0] })}
-                    >Resolve A</button>
-                    <button
-                      className="btn btn-ghost text-xs"
-                      onClick={() => writeContract({ chainId: mantleSepolia.id, address: m.address, abi: betMarketAbi, functionName: "resolve", args: [1] })}
-                    >Resolve B</button>
-                    <button className="btn btn-ghost text-xs" onClick={() => marketStore.remove(m.address)}>Delete</button>
+                      onClick={() => setResolveCtx({ market: m.address, teamA: m.teamA.name, teamB: m.teamB.name })}
+                    >Resolve</button>
+                    <button className="btn btn-ghost text-xs" onClick={async () => {
+                      try {
+                        const res = await fetch(`/api/markets?address=${m.address}`, { method: "DELETE" });
+                        if (res.ok) {
+                          marketStore.remove(m.address);
+                        } else {
+                          const text = await res.text().catch(() => "");
+                          console.error("DELETE /api/markets failed:", res.status, text);
+                          alert("Failed to delete market from database. Please try again.");
+                        }
+                      } catch (e) {
+                        console.error("DELETE /api/markets network error", e);
+                        alert("Network error deleting market. Please check your connection and try again.");
+                      }
+                    }}>Delete</button>
                   </div>
                 )}
               </div>
@@ -205,6 +231,16 @@ export function GameSchedule({ tag }: { tag: Tag }) {
           team={betCtx.team}
           opponent={betCtx.opponent}
           side={betCtx.side}
+        />
+      )}
+
+      {resolveCtx && (
+        <ResolveModal
+          open={!!resolveCtx}
+          onClose={() => setResolveCtx(null)}
+          market={resolveCtx.market}
+          teamA={resolveCtx.teamA}
+          teamB={resolveCtx.teamB}
         />
       )}
     </div>

@@ -40,6 +40,11 @@ export function CreateMarketForm({ prefillToken, prefillStartIso }: Props) {
     const tzAdjusted = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
     return tzAdjusted.toISOString().slice(0, 16);
   });
+  const [endIso, setEndIso] = useState(() => {
+    const d = new Date(new Date(startIso).getTime() + 2 * 60 * 60 * 1000);
+    const tzAdjusted = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+    return tzAdjusted.toISOString().slice(0, 16);
+  });
 
   // New fields for market metadata
   const [tag, setTag] = useState<Tag>("MLB");
@@ -69,12 +74,13 @@ export function CreateMarketForm({ prefillToken, prefillStartIso }: Props) {
     if (!factory || !isOwner) return;
     try {
       const startSec = Math.floor(new Date(startIso).getTime() / 1000);
+      const endSec = Math.floor(new Date(endIso).getTime() / 1000);
       writeContract({
         chainId: mantleSepolia.id,
         address: factory,
         abi: betFactoryAbi,
         functionName: "createMarket",
-        args: [(useNative ? ZERO : (token as `0x${string}`)), BigInt(startSec)],
+        args: [(useNative ? ZERO : (token as `0x${string}`)), BigInt(startSec), BigInt(endSec)],
       });
     } catch {}
   }
@@ -99,10 +105,12 @@ export function CreateMarketForm({ prefillToken, prefillStartIso }: Props) {
       if (!createdAddress) return;
       // Build start time ISO in UTC
       const startIsoUtc = new Date(startIso).toISOString();
+      const endIsoUtc = new Date(endIso).toISOString();
       marketStore.add({
         address: createdAddress,
         token: (useNative ? ZERO : (token as `0x${string}`)),
         startIso: startIsoUtc,
+        endIso: endIsoUtc,
         tag,
         teamA: { name: teamAName || "Team A", logoDataUrl: teamALogo },
         teamB: { name: teamBName || "Team B", logoDataUrl: teamBLogo },
@@ -117,6 +125,7 @@ export function CreateMarketForm({ prefillToken, prefillStartIso }: Props) {
               address: createdAddress,
               token: useNative ? ZERO : token,
               startIso: startIsoUtc,
+              endIso: endIsoUtc,
               tag,
               teamAName: teamAName || "Team A",
               teamALogo,
@@ -170,6 +179,19 @@ export function CreateMarketForm({ prefillToken, prefillStartIso }: Props) {
                 className="border rounded px-2 py-2 w-full"
                 value={startIso}
                 onChange={(e) => setStartIso(e.target.value)}
+                required
+              />
+            </label>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <label className="text-sm">
+              <span className="block secondary mb-1">End time (UTC)</span>
+              <input
+                type="datetime-local"
+                className="border rounded px-2 py-2 w-full"
+                value={endIso}
+                onChange={(e) => setEndIso(e.target.value)}
                 required
               />
             </label>

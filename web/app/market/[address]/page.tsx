@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import {
   useAccount,
@@ -13,6 +13,9 @@ import {
 import { betMarketAbi } from "@/abis/betMarket";
 import { mantleSepolia } from "@/lib/chains";
 import { formatEther, parseEther } from "viem";
+import { ResolveModal } from "@/components/ui/owner/ResolveModal";
+import { ORACLE_ADDRESS } from "@/lib/addresses";
+import { api3ProxyAbi } from "@/abis/api3Proxy";
 
 function stateLabel(v?: bigint) {
   switch (Number(v ?? -1)) {
@@ -48,6 +51,13 @@ export default function MarketDetailsPage() {
     functionName: "startTime",
     query: { enabled: !!market },
   });
+  const { data: endTime } = useReadContract({
+    chainId: mantleSepolia.id,
+    address: market,
+    abi: betMarketAbi,
+    functionName: "endTime",
+    query: { enabled: !!market },
+  });
   const { data: state } = useReadContract({
     chainId: mantleSepolia.id,
     address: market,
@@ -71,6 +81,28 @@ export default function MarketDetailsPage() {
   const owner = totals?.[2]?.status === "success" ? (totals?.[2]?.result as `0x${string}`) : undefined;
   const winning = totals?.[3]?.status === "success" ? (totals?.[3]?.result as bigint) : undefined;
 
+  const { data: scores } = useReadContracts({
+    allowFailure: true,
+    contracts: [
+      { chainId: mantleSepolia.id, address: market, abi: betMarketAbi, functionName: "scoreA" },
+      { chainId: mantleSepolia.id, address: market, abi: betMarketAbi, functionName: "scoreB" },
+    ],
+    query: { enabled: !!market },
+  });
+  const scoreAVal = scores?.[0]?.status === "success" ? Number(scores?.[0]?.result as bigint) : undefined;
+  const scoreBVal = scores?.[1]?.status === "success" ? Number(scores?.[1]?.result as bigint) : undefined;
+
+  // API3 price feed (USD per MNT, 18 decimals). Only enabled when ORACLE_ADDRESS is set.
+  const { data: oracleData } = useReadContract({
+    chainId: mantleSepolia.id,
+    address: (ORACLE_ADDRESS || market) as `0x${string}`,
+    abi: api3ProxyAbi,
+    functionName: "read",
+    query: { enabled: !!ORACLE_ADDRESS && ORACLE_ADDRESS.length > 0 },
+  });
+  const oraclePrice = (Array.isArray(oracleData) ? (oracleData[0] as bigint) : undefined);
+  const oracleTs = (Array.isArray(oracleData) ? (oracleData[1] as bigint) : undefined);
+
   const { data: stakes } = useReadContracts({
     allowFailure: true,
     contracts: [
@@ -88,15 +120,40 @@ export default function MarketDetailsPage() {
   const isResolved = Number(state ?? -1) === 2;
   const isVoided = Number(state ?? -1) === 3;
 
-  const nowSec = Math.floor(Date.now() / 1000);
+  // Periodic clock to refresh boundary-dependent UI (start/end/void)
+  const [clock, setClock] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setClock(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  const nowSec = Math.floor(clock / 1000);
   const startSec = Number((startTime as bigint) ?? 0n);
+  const endSec = Number((endTime as bigint) ?? 0n);
   const canDeposit = isOpen && nowSec < startSec;
   const canLock = isOpen && nowSec >= startSec;
   const depositBoundarySoon = startSec > 0 && startSec - nowSec <= 5; // avoid race near start
   const canDepositUi = canDeposit && !depositBoundarySoon;
+  const canVoidAfterEnd = endSec > 0 && nowSec >= endSec && !isResolved && !isVoided;
 
   const [side, setSide] = useState<0 | 1>(0);
   const [amount, setAmount] = useState("");
+  const [resolveOpen, setResolveOpen] = useState(false);
+  const [inputMode, setInputMode] = useState<"MNT" | "USD">("MNT");
+
+  const ONE = 10n ** 18n;
+  const depositWei = useMemo(() => {
+    try {
+      const trimmed = (amount || "0").trim();
+      if (inputMode === "MNT") {
+        return parseEther(trimmed);
+      }
+      if (!oraclePrice) return 0n;
+      const usdScaled = parseEther(trimmed); // 18 decimals
+      return (usdScaled * ONE) / oraclePrice; // floor
+    } catch {
+      return 0n;
+    }
+  }, [amount, inputMode, oraclePrice]);
 
   const { writeContract, data: writeHash, isPending, error: writeError } = useWriteContract();
   const { isLoading: confirming, isSuccess: confirmed, error: confirmError } = useWaitForTransactionReceipt({ hash: writeHash });
@@ -120,7 +177,7 @@ export default function MarketDetailsPage() {
     e.preventDefault();
     if (!canDeposit) return;
     try {
-      const value = parseEther((amount || "0").trim());
+      const value = depositWei;
       if (value <= 0n) return;
       writeContract({
         chainId: mantleSepolia.id,
@@ -143,6 +200,11 @@ export default function MarketDetailsPage() {
     writeContract({ chainId: mantleSepolia.id, address: market, abi: betMarketAbi, functionName: "resolve", args: [winner] });
   }
 
+  function doVoidAfterEnd() {
+    if (!canVoidAfterEnd) return;
+    writeContract({ chainId: mantleSepolia.id, address: market, abi: betMarketAbi, functionName: "voidAfterEnd" });
+  }
+
   function doClaim() {
     if (!(isResolved || isVoided)) return;
     writeContract({ chainId: mantleSepolia.id, address: market, abi: betMarketAbi, functionName: "claim" });
@@ -158,9 +220,13 @@ export default function MarketDetailsPage() {
         <div><span className="text-neutral-500">Address:</span> {market}</div>
         <div><span className="text-neutral-500">Stake Token:</span> {isNative ? "MNT (native)" : (token as string)}</div>
         <div><span className="text-neutral-500">Start:</span> {startTime ? new Date(Number(startTime) * 1000).toLocaleString() : "-"}</div>
+        <div><span className="text-neutral-500">End:</span> {endTime ? new Date(Number(endTime) * 1000).toLocaleString() : "-"}</div>
         <div><span className="text-neutral-500">State:</span> {stateLabel(state as bigint)}</div>
         {isResolved && (
           <div><span className="text-neutral-500">Winner:</span> {Number(winning) === 0 ? "Side A" : "Side B"}</div>
+        )}
+        {isResolved && (
+          <div><span className="text-neutral-500">Score:</span> {scoreAVal ?? "-"} - {scoreBVal ?? "-"}</div>
         )}
       </div>
 
@@ -178,7 +244,7 @@ export default function MarketDetailsPage() {
       </div>
 
       <div className="border rounded p-3 mb-3">
-        <div className="font-medium mb-2">Deposit (MNT)</div>
+        <div className="font-medium mb-2">Deposit</div>
         {!isNative && (
           <p className="text-xs text-amber-700 mb-2">This market expects native MNT for MVP. If a token was set, deposits are disabled.</p>
         )}
@@ -191,17 +257,32 @@ export default function MarketDetailsPage() {
               <input type="radio" name="side" checked={side === 1} onChange={() => setSide(1)} /> Side B
             </label>
           </div>
+          <div className="flex items-center gap-4 text-xs">
+            <label className="flex items-center gap-1">
+              <input type="radio" name="unit" checked={inputMode === "MNT"} onChange={() => setInputMode("MNT")} /> MNT
+            </label>
+            <label className="flex items-center gap-1">
+              <input type="radio" name="unit" checked={inputMode === "USD"} onChange={() => setInputMode("USD")} disabled={!oraclePrice} /> USD
+            </label>
+            {inputMode === "USD" && !oraclePrice && <span className="secondary">Price loading…</span>}
+          </div>
           <input
             className="border rounded px-2 py-2"
-            placeholder="Amount in MNT"
+            placeholder={inputMode === "USD" ? "Amount in USD" : "Amount in MNT"}
             inputMode="decimal"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
           />
+          {inputMode === "USD" && oraclePrice && (
+            <div className="text-xs text-neutral-600">
+              <div>Oracle: ${formatEther(oraclePrice)} per MNT{oracleTs ? ` as of ${new Date(Number(oracleTs) * 1000).toLocaleString()}` : ""}</div>
+              <div>Est. deposit: {formatEther(depositWei)} MNT</div>
+            </div>
+          )}
           <button
             type="submit"
             className="px-4 py-2 rounded-md bg-black text-white disabled:opacity-50"
-            disabled={!canDepositUi || !isNative || isPending || confirming}
+            disabled={!canDepositUi || !isNative || isPending || confirming || (inputMode === "USD" && !oraclePrice) || depositWei <= 0n}
           >
             {isPending || confirming
               ? "Depositing..."
@@ -233,10 +314,10 @@ export default function MarketDetailsPage() {
           Lock (after start)
         </button>
         {isOwner && isLocked && (
-          <>
-            <button className="px-3 py-2 rounded border" onClick={() => doResolve(0)}>Resolve A</button>
-            <button className="px-3 py-2 rounded border" onClick={() => doResolve(1)}>Resolve B</button>
-          </>
+          <button className="px-3 py-2 rounded border" onClick={() => setResolveOpen(true)}>Resolve</button>
+        )}
+        {canVoidAfterEnd && (
+          <button className="px-3 py-2 rounded border" onClick={doVoidAfterEnd} disabled={isPending || confirming}>Void (past end)</button>
         )}
         {(isResolved || isVoided) && (
           <button className="px-3 py-2 rounded border" onClick={doClaim} disabled={isPending || confirming}>Claim</button>

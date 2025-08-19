@@ -11,6 +11,7 @@ export type DbMarketRow = {
   address: string;
   token: string;
   start_iso: string;
+  end_iso?: string | null;
   tag: string;
   team_a_name: string;
   team_a_logo: string | null;
@@ -19,4 +20,5 @@ export type DbMarketRow = {
   created_at: string | null;
   locked: boolean | null;
   winner: number | null;
+  deleted_at?: string | null;
 };

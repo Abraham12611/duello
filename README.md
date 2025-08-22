@@ -10,7 +10,6 @@ A trustless, peer‑to‑peer sports betting dApp built on the Mantle Network. D
 - __Auto‑lock at start__: Markets can be locked at or after the configured start time; no deposits after lock.
 - __Resolve or void__: Owner resolves the winner (A or B). If one side had zero liquidity at lock, the market is voided and everyone is refunded.
 - __Claim payouts__: After resolution, winners claim principal + pro‑rata share of the losing pool. A configurable platform fee (bps) applies to the winnings portion only.
-- __USD display (optional)__: The UI can read an API3 price proxy to display “≈ USD” equivalents for MNT deposits; on‑chain accounting remains in MNT.
 
 
 ## What Duello is built with (frontend)
@@ -19,7 +18,6 @@ A trustless, peer‑to‑peer sports betting dApp built on the Mantle Network. D
 - __Wagmi v2 + Viem__ for contract reads/writes and wallet state.
 - __Para wallet integration__ via `@getpara/react-sdk` and `@getpara/wagmi-v2-integration`.
 - __Tailwind CSS__ for styling.
-- Optional: API3 proxy ABI wired for price reads to support USD estimates.
 
 Key files and routes:
 - `web/app/page.tsx`: home, category tabs and schedule.
@@ -53,7 +51,6 @@ Smart contracts (`contracts/contracts/`):
   - `README.md` with network notes and commands
 - `web/` – Next.js frontend
   - Para + Wagmi provider setup, Mantle chain config, UI components and routes
-  - `README.md` with quickstart and notes
 - `project-files/` – product overview and build plan
 - `docs/` – Mantle and Para doc excerpts for reference
 
@@ -78,7 +75,7 @@ Prereqs: Node.js 18+, npm 9+, test MNT on Mantle Sepolia.
 2) Web
 - Copy `web/.env.local.example` → `web/.env.local` and set:
   - `NEXT_PUBLIC_FACTORY_ADDRESS` – deployed `BetFactory` address
-  - `NEXT_PUBLIC_ORACLE_ADDRESS` – optional API3 proxy for USD display
+  - `NEXT_PUBLIC_ORACLE_ADDRESS` –
   - `NEXT_PUBLIC_PARA_API_KEY` – your Para key; optionally `NEXT_PUBLIC_PARA_ENV`
 - Install and run:
   ```bash
@@ -104,12 +101,6 @@ Prereqs: Node.js 18+, npm 9+, test MNT on Mantle Sepolia.
 - Mainnet: Mantle (5000).
 - EIP‑1559: prefer base fee ≈ 0.02 gwei and priority fee 0 as per Mantle guidance (tooling may auto‑estimate).
 
-
-## Limitations (MVP)
-
-- Escrow is native MNT only (no ERC‑20 deposits yet).
-- Simple owner‑driven resolution; optimistic oracle is a separate component and can be integrated more tightly later.
-- No in‑play betting, parlays, or complex market types in MVP.
 
 
 ## Acknowledgements

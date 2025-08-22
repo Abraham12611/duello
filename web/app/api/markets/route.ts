@@ -21,12 +21,12 @@ export async function POST(req: Request) {
     }
 
     const sql = getSql();
-    // Ensure table exists on first use
+    // Ensure table exists on first use (timestamps stored as TIMESTAMPTZ going forward)
     await sql`CREATE TABLE IF NOT EXISTS markets (
       address TEXT PRIMARY KEY,
       token TEXT NOT NULL,
-      start_iso TEXT NOT NULL,
-      end_iso TEXT,
+      start_iso TIMESTAMPTZ NOT NULL,
+      end_iso TIMESTAMPTZ,
       tag TEXT NOT NULL,
       team_a_name TEXT NOT NULL,
       team_a_logo TEXT,
@@ -38,7 +38,7 @@ export async function POST(req: Request) {
       deleted_at TIMESTAMPTZ
     )`;
     // Add new columns if migrating from older schema
-    await sql`ALTER TABLE markets ADD COLUMN IF NOT EXISTS end_iso TEXT`;
+    await sql`ALTER TABLE markets ADD COLUMN IF NOT EXISTS end_iso TIMESTAMPTZ`;
     await sql`ALTER TABLE markets ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMPTZ`;
 
     await sql(
@@ -71,8 +71,8 @@ export async function GET() {
     await sql`CREATE TABLE IF NOT EXISTS markets (
       address TEXT PRIMARY KEY,
       token TEXT NOT NULL,
-      start_iso TEXT NOT NULL,
-      end_iso TEXT,
+      start_iso TIMESTAMPTZ NOT NULL,
+      end_iso TIMESTAMPTZ,
       tag TEXT NOT NULL,
       team_a_name TEXT NOT NULL,
       team_a_logo TEXT,
@@ -83,9 +83,9 @@ export async function GET() {
       winner SMALLINT,
       deleted_at TIMESTAMPTZ
     )`;
-    await sql`ALTER TABLE markets ADD COLUMN IF NOT EXISTS end_iso TEXT`;
+    await sql`ALTER TABLE markets ADD COLUMN IF NOT EXISTS end_iso TIMESTAMPTZ`;
     await sql`ALTER TABLE markets ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMPTZ`;
-    const rows = (await sql`SELECT * FROM markets WHERE deleted_at IS NULL AND (end_iso IS NULL OR end_iso > now()) ORDER BY start_iso ASC`) as unknown as DbMarketRow[];
+    const rows = (await sql`SELECT * FROM markets WHERE deleted_at IS NULL AND (end_iso IS NULL OR (end_iso::timestamptz) > now()) ORDER BY (start_iso::timestamptz) ASC`) as unknown as DbMarketRow[];
     const markets = rows.map((r) => ({
       address: r.address as `0x${string}`,
       token: r.token as `0x${string}`,

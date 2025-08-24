@@ -7,6 +7,8 @@ import { useMarkets, marketStore, type Tag } from "@/lib/marketStore";
 import { betMarketAbi } from "@/abis/betMarket";
 import { mantleSepolia } from "@/lib/chains";
 import { BetModal } from "./bet/BetModal";
+import { ResolveModal } from "./owner/ResolveModal";
+import { ViewBetModal, type ViewBet } from "./bet/ViewBetModal";
 
 function DayTime({ iso }: { iso: string }) {
   const d = new Date(iso);
@@ -39,15 +41,17 @@ function TeamBadge({ name, logo }: { name: string; logo?: string }) {
   );
 }
 
-function TeamRow(props: { team: string; logo?: string; onCreateBet?: () => void }) {
-  const { team, logo, onCreateBet } = props;
+function TeamRow(props: { team: string; logo?: string; onCreateBet?: () => void; onViewBet?: () => void; hasBet?: boolean }) {
+  const { team, logo, onCreateBet, onViewBet, hasBet } = props;
   return (
     <div className="flex items-center justify-between px-3 py-3 rounded-md hover:bg-[var(--surfaceElevated)] transition">
       <div className="flex items-center">
         <TeamBadge name={team} logo={logo} />
         <div className="text-[15px] font-medium">{team}</div>
       </div>
-      {onCreateBet ? (
+      {hasBet && onViewBet ? (
+        <button className="btn btn-ghost text-xs" onClick={onViewBet}>View Bet</button>
+      ) : onCreateBet ? (
         <button className="btn btn-ghost text-xs" onClick={onCreateBet}>+ Create Bet</button>
       ) : (
         <span className="btn btn-ghost text-xs opacity-60 cursor-not-allowed">+ Create Bet</span>
@@ -73,6 +77,7 @@ export function GameSchedule({ tag }: { tag: Tag }) {
           address: `0x${string}`;
           token: `0x${string}`;
           startIso: string;
+          endIso?: string;
           tag: Tag;
           teamA: { name: string; logoDataUrl?: string };
           teamB: { name: string; logoDataUrl?: string };
@@ -97,6 +102,13 @@ export function GameSchedule({ tag }: { tag: Tag }) {
     | { market: `0x${string}`; team: string; opponent: string; side: 0 | 1 }
     | null
   >(null);
+  const [resolveCtx, setResolveCtx] = useState<
+    | { market: `0x${string}`; teamA: string; teamB: string }
+    | null
+  >(null);
+  // Remember the last bet placed per market+side for this session
+  const [lastBets, setLastBets] = useState<Record<string, { amount: number; odds: number; payout: number; team: string; opponent: string }>>({});
+  const [viewBet, setViewBet] = useState<ViewBet | null>(null);
 
   return (
     <div className="max-w-[1400px] mx-auto px-6 pb-10">
@@ -126,12 +138,16 @@ export function GameSchedule({ tag }: { tag: Tag }) {
                 <TeamRow
                   team={m.teamA.name}
                   logo={m.teamA.logoDataUrl}
-                  onCreateBet={() => setBetCtx({ market: m.address, team: m.teamA.name, opponent: m.teamB.name, side: 0 })}
+                  hasBet={!!lastBets[`${m.address}-0`]}
+                  onViewBet={lastBets[`${m.address}-0`] ? () => setViewBet({ market: m.address, team: m.teamA.name, opponent: m.teamB.name, amount: lastBets[`${m.address}-0`].amount, odds: lastBets[`${m.address}-0`].odds, payout: lastBets[`${m.address}-0`].payout }) : undefined}
+                  onCreateBet={!lastBets[`${m.address}-0`] ? () => setBetCtx({ market: m.address, team: m.teamA.name, opponent: m.teamB.name, side: 0 }) : undefined}
                 />
                 <TeamRow
                   team={m.teamB.name}
                   logo={m.teamB.logoDataUrl}
-                  onCreateBet={() => setBetCtx({ market: m.address, team: m.teamB.name, opponent: m.teamA.name, side: 1 })}
+                  hasBet={!!lastBets[`${m.address}-1`]}
+                  onViewBet={lastBets[`${m.address}-1`] ? () => setViewBet({ market: m.address, team: m.teamB.name, opponent: m.teamA.name, amount: lastBets[`${m.address}-1`].amount, odds: lastBets[`${m.address}-1`].odds, payout: lastBets[`${m.address}-1`].payout }) : undefined}
+                  onCreateBet={!lastBets[`${m.address}-1`] ? () => setBetCtx({ market: m.address, team: m.teamB.name, opponent: m.teamA.name, side: 1 }) : undefined}
                 />
                 {isOwner && (
                   <div className="flex gap-2 px-3 pb-3">
@@ -141,13 +157,23 @@ export function GameSchedule({ tag }: { tag: Tag }) {
                     >Lock</button>
                     <button
                       className="btn btn-ghost text-xs"
-                      onClick={() => writeContract({ chainId: mantleSepolia.id, address: m.address, abi: betMarketAbi, functionName: "resolve", args: [0] })}
-                    >Resolve A</button>
-                    <button
-                      className="btn btn-ghost text-xs"
-                      onClick={() => writeContract({ chainId: mantleSepolia.id, address: m.address, abi: betMarketAbi, functionName: "resolve", args: [1] })}
-                    >Resolve B</button>
-                    <button className="btn btn-ghost text-xs" onClick={() => marketStore.remove(m.address)}>Delete</button>
+                      onClick={() => setResolveCtx({ market: m.address, teamA: m.teamA.name, teamB: m.teamB.name })}
+                    >Resolve</button>
+                    <button className="btn btn-ghost text-xs" onClick={async () => {
+                      try {
+                        const res = await fetch(`/api/markets?address=${m.address}`, { method: "DELETE" });
+                        if (res.ok) {
+                          marketStore.remove(m.address);
+                        } else {
+                          const text = await res.text().catch(() => "");
+                          console.error("DELETE /api/markets failed:", res.status, text);
+                          alert("Failed to delete market from database. Please try again.");
+                        }
+                      } catch (e) {
+                        console.error("DELETE /api/markets network error", e);
+                        alert("Network error deleting market. Please check your connection and try again.");
+                      }
+                    }}>Delete</button>
                   </div>
                 )}
               </div>
@@ -167,12 +193,16 @@ export function GameSchedule({ tag }: { tag: Tag }) {
                 <TeamRow
                   team={m.teamA.name}
                   logo={m.teamA.logoDataUrl}
-                  onCreateBet={() => setBetCtx({ market: m.address, team: m.teamA.name, opponent: m.teamB.name, side: 0 })}
+                  hasBet={!!lastBets[`${m.address}-0`]}
+                  onViewBet={lastBets[`${m.address}-0`] ? () => setViewBet({ market: m.address, team: m.teamA.name, opponent: m.teamB.name, amount: lastBets[`${m.address}-0`].amount, odds: lastBets[`${m.address}-0`].odds, payout: lastBets[`${m.address}-0`].payout }) : undefined}
+                  onCreateBet={!lastBets[`${m.address}-0`] ? () => setBetCtx({ market: m.address, team: m.teamA.name, opponent: m.teamB.name, side: 0 }) : undefined}
                 />
                 <TeamRow
                   team={m.teamB.name}
                   logo={m.teamB.logoDataUrl}
-                  onCreateBet={() => setBetCtx({ market: m.address, team: m.teamB.name, opponent: m.teamA.name, side: 1 })}
+                  hasBet={!!lastBets[`${m.address}-1`]}
+                  onViewBet={lastBets[`${m.address}-1`] ? () => setViewBet({ market: m.address, team: m.teamB.name, opponent: m.teamA.name, amount: lastBets[`${m.address}-1`].amount, odds: lastBets[`${m.address}-1`].odds, payout: lastBets[`${m.address}-1`].payout }) : undefined}
+                  onCreateBet={!lastBets[`${m.address}-1`] ? () => setBetCtx({ market: m.address, team: m.teamB.name, opponent: m.teamA.name, side: 1 }) : undefined}
                 />
                 {isOwner && (
                   <div className="flex gap-2 px-3 pb-3">
@@ -182,13 +212,23 @@ export function GameSchedule({ tag }: { tag: Tag }) {
                     >Lock</button>
                     <button
                       className="btn btn-ghost text-xs"
-                      onClick={() => writeContract({ chainId: mantleSepolia.id, address: m.address, abi: betMarketAbi, functionName: "resolve", args: [0] })}
-                    >Resolve A</button>
-                    <button
-                      className="btn btn-ghost text-xs"
-                      onClick={() => writeContract({ chainId: mantleSepolia.id, address: m.address, abi: betMarketAbi, functionName: "resolve", args: [1] })}
-                    >Resolve B</button>
-                    <button className="btn btn-ghost text-xs" onClick={() => marketStore.remove(m.address)}>Delete</button>
+                      onClick={() => setResolveCtx({ market: m.address, teamA: m.teamA.name, teamB: m.teamB.name })}
+                    >Resolve</button>
+                    <button className="btn btn-ghost text-xs" onClick={async () => {
+                      try {
+                        const res = await fetch(`/api/markets?address=${m.address}`, { method: "DELETE" });
+                        if (res.ok) {
+                          marketStore.remove(m.address);
+                        } else {
+                          const text = await res.text().catch(() => "");
+                          console.error("DELETE /api/markets failed:", res.status, text);
+                          alert("Failed to delete market from database. Please try again.");
+                        }
+                      } catch (e) {
+                        console.error("DELETE /api/markets network error", e);
+                        alert("Network error deleting market. Please check your connection and try again.");
+                      }
+                    }}>Delete</button>
                   </div>
                 )}
               </div>
@@ -205,6 +245,32 @@ export function GameSchedule({ tag }: { tag: Tag }) {
           team={betCtx.team}
           opponent={betCtx.opponent}
           side={betCtx.side}
+          onConfirmed={({ amount, odds, payout }) => {
+            if (!betCtx) return;
+            const key = `${betCtx.market}-${betCtx.side}`;
+            setLastBets((prev) => ({
+              ...prev,
+              [key]: { amount, odds, payout, team: betCtx.team, opponent: betCtx.opponent },
+            }));
+          }}
+        />
+      )}
+
+      {resolveCtx && (
+        <ResolveModal
+          open={!!resolveCtx}
+          onClose={() => setResolveCtx(null)}
+          market={resolveCtx.market}
+          teamA={resolveCtx.teamA}
+          teamB={resolveCtx.teamB}
+        />
+      )}
+
+      {viewBet && (
+        <ViewBetModal
+          open={!!viewBet}
+          onClose={() => setViewBet(null)}
+          bet={viewBet}
         />
       )}
     </div>

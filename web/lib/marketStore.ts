@@ -17,6 +17,7 @@ export type MarketMeta = {
   address: `0x${string}`;
   token: `0x${string}`;
   startIso: string;
+  endIso?: string; // optional end time for auto-void UX
   tag: Tag;
   teamA: TeamInfo;
   teamB: TeamInfo;

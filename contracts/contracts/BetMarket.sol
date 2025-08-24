@@ -12,8 +12,11 @@ contract BetMarket is ReentrancyGuard, Pausable, Ownable {
 
     IERC20 public immutable token;
     uint256 public startTime;
+    uint256 public endTime;
     State public state;
     Side public winningSide; // valid only when state == Resolved
+    uint32 public scoreA; // optional metadata set on resolve
+    uint32 public scoreB; // optional metadata set on resolve
 
     // Per-side totals and user stakes (native MNT for MVP)
     uint256 public totalA;
@@ -32,9 +35,10 @@ contract BetMarket is ReentrancyGuard, Pausable, Ownable {
     event Claimed(address indexed user, uint256 amount);
     event FeeUpdated(uint16 feeBps, address feeRecipient);
 
-    constructor(address _token, uint256 _startTime, address _owner) {
+    constructor(address _token, uint256 _startTime, uint256 _endTime, address _owner) {
         token = IERC20(_token);
         startTime = _startTime;
+        endTime = _endTime;
         state = State.Open;
         _transferOwnership(_owner);
         feeRecipient = _owner;
@@ -76,6 +80,34 @@ contract BetMarket is ReentrancyGuard, Pausable, Ownable {
         winningSide = winner;
         state = State.Resolved;
         emit Resolved(winner);
+    }
+
+    // Resolve and record scores
+    function resolveWithScores(Side winner, uint32 _scoreA, uint32 _scoreB) external onlyOwner {
+        require(state == State.Locked, "Not locked");
+        scoreA = _scoreA;
+        scoreB = _scoreB;
+        winningSide = winner;
+        state = State.Resolved;
+        emit Resolved(winner);
+    }
+
+    // Owner can void the market (e.g., draw/cancelled)
+    function voidByOwner() external onlyOwner {
+        require(state == State.Open || state == State.Locked, "Not voidable");
+        state = State.Voided;
+        emit Voided();
+    }
+
+    // Anyone can void after endTime if not resolved
+    function voidAfterEnd() external {
+        require(endTime > 0, "No end time");
+        require(block.timestamp >= endTime, "Too early");
+        require(state != State.Resolved, "Already resolved");
+        if (state != State.Voided) {
+            state = State.Voided;
+            emit Voided();
+        }
     }
 
     function claim() external nonReentrant {

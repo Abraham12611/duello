@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
+import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt, useConnect, useDisconnect } from "wagmi";
 import { betFactoryAbi } from "@/abis/betFactory";
 import { FACTORY_ADDRESS } from "@/lib/addresses";
 import { mantleSepolia } from "@/lib/chains";
@@ -14,9 +14,20 @@ type Props = {
 };
 
 export function CreateMarketForm({ prefillToken, prefillStartIso }: Props) {
-  const factory = FACTORY_ADDRESS;
-  const { address } = useAccount();
+  const factory = process.env.NEXT_PUBLIC_FACTORY_ADDRESS;
+  const { address, isConnected } = useAccount();
+  const { connectors, connect, status: connectStatus, error: connectError } = useConnect();
+  const { disconnect } = useDisconnect();
   const ZERO = "0x0000000000000000000000000000000000000000" as const;
+
+  function handleConnect() {
+    try {
+      const paraConn = connectors.find((c) => (c as any).id === "para" || c.name?.toLowerCase() === "para") ?? connectors[0];
+      if (paraConn) {
+        connect({ connector: paraConn });
+      }
+    } catch {}
+  }
 
   const { data: owner } = useReadContract({
     chainId: mantleSepolia.id,
@@ -37,6 +48,11 @@ export function CreateMarketForm({ prefillToken, prefillStartIso }: Props) {
     if (prefillStartIso) return prefillStartIso;
     const d = new Date(Date.now() + 5 * 60 * 1000);
     // Convert to local datetime string suitable for <input type="datetime-local">
+    const tzAdjusted = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+    return tzAdjusted.toISOString().slice(0, 16);
+  });
+  const [endIso, setEndIso] = useState(() => {
+    const d = new Date(new Date(startIso).getTime() + 2 * 60 * 60 * 1000);
     const tzAdjusted = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
     return tzAdjusted.toISOString().slice(0, 16);
   });
@@ -62,19 +78,20 @@ export function CreateMarketForm({ prefillToken, prefillStartIso }: Props) {
   }
 
   const { writeContract, data: txHash, isPending, error: writeError } = useWriteContract();
-  const { data: receipt, isLoading: isConfirming, isSuccess: isConfirmed, error: confirmError } = useWaitForTransactionReceipt({ hash: txHash });
+  const { data: receipt, isLoading: isConfirming, isSuccess: isConfirmed, error: confirmError } = useWaitForTransactionReceipt({ hash: txHash, chainId: mantleSepolia.id });
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!factory || !isOwner) return;
+    if (!factory || !isOwner || !isConnected || !address) return;
     try {
       const startSec = Math.floor(new Date(startIso).getTime() / 1000);
+      const endSec = Math.floor(new Date(endIso).getTime() / 1000);
       writeContract({
         chainId: mantleSepolia.id,
         address: factory,
         abi: betFactoryAbi,
         functionName: "createMarket",
-        args: [(useNative ? ZERO : (token as `0x${string}`)), BigInt(startSec)],
+        args: [(useNative ? ZERO : (token as `0x${string}`)), BigInt(startSec), BigInt(endSec)],
       });
     } catch {}
   }
@@ -99,10 +116,12 @@ export function CreateMarketForm({ prefillToken, prefillStartIso }: Props) {
       if (!createdAddress) return;
       // Build start time ISO in UTC
       const startIsoUtc = new Date(startIso).toISOString();
+      const endIsoUtc = new Date(endIso).toISOString();
       marketStore.add({
         address: createdAddress,
         token: (useNative ? ZERO : (token as `0x${string}`)),
         startIso: startIsoUtc,
+        endIso: endIsoUtc,
         tag,
         teamA: { name: teamAName || "Team A", logoDataUrl: teamALogo },
         teamB: { name: teamBName || "Team B", logoDataUrl: teamBLogo },
@@ -117,6 +136,7 @@ export function CreateMarketForm({ prefillToken, prefillStartIso }: Props) {
               address: createdAddress,
               token: useNative ? ZERO : token,
               startIso: startIsoUtc,
+              endIso: endIsoUtc,
               tag,
               teamAName: teamAName || "Team A",
               teamALogo,
@@ -147,7 +167,25 @@ export function CreateMarketForm({ prefillToken, prefillStartIso }: Props) {
   return (
     <div className="card p-4">
       <h3 className="font-medium mb-2">Create Market</h3>
-      {!isOwner ? (
+      {!address || !isConnected ? (
+        <div className="flex flex-col gap-2">
+          <p className="text-sm secondary">Connect to Para to continue.</p>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              className="btn btn-primary disabled:opacity-50"
+              onClick={handleConnect}
+              disabled={connectStatus === "pending"}
+            >
+              {connectStatus === "pending" ? "Connecting..." : "Connect Para"}
+            </button>
+            {!!address && (
+              <button type="button" className="btn btn-secondary" onClick={() => disconnect()}>Disconnect</button>
+            )}
+          </div>
+          {connectError && <p className="text-sm" style={{ color: "#fda4af" }}>{connectError.message}</p>}
+        </div>
+      ) : !isOwner ? (
         <p className="text-sm secondary">Only the factory owner can create markets.</p>
       ) : (
         <form onSubmit={submit} className="flex flex-col gap-3">
@@ -170,6 +208,19 @@ export function CreateMarketForm({ prefillToken, prefillStartIso }: Props) {
                 className="border rounded px-2 py-2 w-full"
                 value={startIso}
                 onChange={(e) => setStartIso(e.target.value)}
+                required
+              />
+            </label>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <label className="text-sm">
+              <span className="block secondary mb-1">End time (UTC)</span>
+              <input
+                type="datetime-local"
+                className="border rounded px-2 py-2 w-full"
+                value={endIso}
+                onChange={(e) => setEndIso(e.target.value)}
                 required
               />
             </label>
@@ -224,7 +275,7 @@ export function CreateMarketForm({ prefillToken, prefillStartIso }: Props) {
             <button
               type="submit"
               className="btn btn-primary disabled:opacity-50"
-              disabled={isPending || isConfirming}
+              disabled={isPending || isConfirming || !isConnected}
             >
               {isPending || isConfirming ? "Creating..." : "Create"}
             </button>

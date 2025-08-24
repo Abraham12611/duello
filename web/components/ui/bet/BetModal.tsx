@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { betMarketAbi } from "@/abis/betMarket";
 import { mantleSepolia } from "@/lib/chains";
@@ -13,13 +13,14 @@ type Props = {
   team: string;
   opponent: string;
   side: 0 | 1; // A=0, B=1
+  onConfirmed?: (d: { amount: number; odds: number; payout: number; txHash?: `0x${string}` | undefined }) => void;
 };
 
-export function BetModal({ open, onClose, market, team, opponent, side }: Props) {
+export function BetModal({ open, onClose, market, team, opponent, side, onConfirmed }: Props) {
   const [amount, setAmount] = useState("");
   const [odds, setOdds] = useState("");
   const { writeContract, data: txHash, isPending, error } = useWriteContract();
-  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash: txHash });
+  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash: txHash, chainId: mantleSepolia.id });
   const amt = useMemo(() => {
     const v = parseFloat(amount || "0");
     return Number.isFinite(v) ? Math.max(0, v) : 0;
@@ -31,6 +32,13 @@ export function BetModal({ open, onClose, market, team, opponent, side }: Props)
   const payout = useMemo(() => amt * (1 + oddNum / 100), [amt, oddNum]);
   const profit = useMemo(() => payout - amt, [payout, amt]);
   const fmt = (n: number) => n.toLocaleString(undefined, { style: "currency", currency: "USD" });
+
+  useEffect(() => {
+    if (isConfirmed) {
+      onConfirmed?.({ amount: amt, odds: oddNum, payout, txHash });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isConfirmed]);
 
   function submit(e: React.FormEvent) {
     e.preventDefault();

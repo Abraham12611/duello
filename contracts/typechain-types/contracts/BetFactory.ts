@@ -44,7 +44,7 @@ export interface BetFactoryInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "createMarket",
-    values: [AddressLike, BigNumberish]
+    values: [AddressLike, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "markets",
@@ -81,13 +81,20 @@ export namespace MarketCreatedEvent {
   export type InputTuple = [
     market: AddressLike,
     token: AddressLike,
-    startTime: BigNumberish
+    startTime: BigNumberish,
+    endTime: BigNumberish
   ];
-  export type OutputTuple = [market: string, token: string, startTime: bigint];
+  export type OutputTuple = [
+    market: string,
+    token: string,
+    startTime: bigint,
+    endTime: bigint
+  ];
   export interface OutputObject {
     market: string;
     token: string;
     startTime: bigint;
+    endTime: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -154,7 +161,7 @@ export interface BetFactory extends BaseContract {
   allMarkets: TypedContractMethod<[], [string[]], "view">;
 
   createMarket: TypedContractMethod<
-    [token: AddressLike, startTime: BigNumberish],
+    [token: AddressLike, startTime: BigNumberish, endTime: BigNumberish],
     [string],
     "nonpayable"
   >;
@@ -181,7 +188,7 @@ export interface BetFactory extends BaseContract {
   getFunction(
     nameOrSignature: "createMarket"
   ): TypedContractMethod<
-    [token: AddressLike, startTime: BigNumberish],
+    [token: AddressLike, startTime: BigNumberish, endTime: BigNumberish],
     [string],
     "nonpayable"
   >;
@@ -214,7 +221,7 @@ export interface BetFactory extends BaseContract {
   >;
 
   filters: {
-    "MarketCreated(address,address,uint256)": TypedContractEvent<
+    "MarketCreated(address,address,uint256,uint256)": TypedContractEvent<
       MarketCreatedEvent.InputTuple,
       MarketCreatedEvent.OutputTuple,
       MarketCreatedEvent.OutputObject

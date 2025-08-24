@@ -5,14 +5,14 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "./BetMarket.sol";
 
 contract BetFactory is Ownable {
-    event MarketCreated(address indexed market, address token, uint256 startTime);
+    event MarketCreated(address indexed market, address token, uint256 startTime, uint256 endTime);
 
     address[] public markets;
 
-    function createMarket(address token, uint256 startTime) external onlyOwner returns (address) {
-        BetMarket m = new BetMarket(token, startTime, owner());
+    function createMarket(address token, uint256 startTime, uint256 endTime) external onlyOwner returns (address) {
+        BetMarket m = new BetMarket(token, startTime, endTime, owner());
         markets.push(address(m));
-        emit MarketCreated(address(m), token, startTime);
+        emit MarketCreated(address(m), token, startTime, endTime);
         return address(m);
     }
 

@@ -4,7 +4,8 @@ export const betFactoryAbi = [
     name: "createMarket",
     inputs: [
       { name: "token", type: "address" },
-      { name: "startTime", type: "uint256" }
+      { name: "startTime", type: "uint256" },
+      { name: "endTime", type: "uint256" }
     ],
     outputs: [{ type: "address" }],
     stateMutability: "nonpayable",
@@ -29,7 +30,8 @@ export const betFactoryAbi = [
     inputs: [
       { indexed: true, name: "market", type: "address" },
       { indexed: false, name: "token", type: "address" },
-      { indexed: false, name: "startTime", type: "uint256" }
+      { indexed: false, name: "startTime", type: "uint256" },
+      { indexed: false, name: "endTime", type: "uint256" }
     ],
     anonymous: false,
   },

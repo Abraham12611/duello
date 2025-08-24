@@ -15,6 +15,13 @@ export const betMarketAbi = [
   },
   {
     type: "function",
+    name: "endTime",
+    inputs: [],
+    outputs: [{ type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
     name: "state",
     inputs: [],
     outputs: [{ type: "uint8" }],
@@ -27,6 +34,8 @@ export const betMarketAbi = [
     outputs: [{ type: "uint8" }],
     stateMutability: "view",
   },
+  { type: "function", name: "scoreA", inputs: [], outputs: [{ type: "uint32" }], stateMutability: "view" },
+  { type: "function", name: "scoreB", inputs: [], outputs: [{ type: "uint32" }], stateMutability: "view" },
   { type: "function", name: "totalA", inputs: [], outputs: [{ type: "uint256" }], stateMutability: "view" },
   { type: "function", name: "totalB", inputs: [], outputs: [{ type: "uint256" }], stateMutability: "view" },
   {
@@ -46,6 +55,9 @@ export const betMarketAbi = [
   { type: "function", name: "deposit", inputs: [{ name: "side", type: "uint8" }], outputs: [], stateMutability: "payable" },
   { type: "function", name: "lock", inputs: [], outputs: [], stateMutability: "nonpayable" },
   { type: "function", name: "resolve", inputs: [{ name: "winner", type: "uint8" }], outputs: [], stateMutability: "nonpayable" },
+  { type: "function", name: "resolveWithScores", inputs: [ { name: "winner", type: "uint8" }, { name: "scoreA", type: "uint32" }, { name: "scoreB", type: "uint32" } ], outputs: [], stateMutability: "nonpayable" },
+  { type: "function", name: "voidByOwner", inputs: [], outputs: [], stateMutability: "nonpayable" },
+  { type: "function", name: "voidAfterEnd", inputs: [], outputs: [], stateMutability: "nonpayable" },
   { type: "function", name: "claim", inputs: [], outputs: [], stateMutability: "nonpayable" },
   { type: "function", name: "setFee", inputs: [{ name: "feeBps", type: "uint16" }, { name: "recipient", type: "address" }], outputs: [], stateMutability: "nonpayable" },
   // events

@@ -5,7 +5,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Environment, ParaProvider, useClient } from "@getpara/react-sdk";
 import "@getpara/react-sdk/styles.css";
 import { paraConnector } from "@getpara/wagmi-v2-integration";
-import { WagmiProvider, createConfig, http } from "wagmi";
+import { WagmiProvider, createConfig } from "wagmi";
+import type { CreateConnectorFn } from "wagmi";
+import { http, fallback } from "viem";
 import { mantleSepolia } from "@/lib/chains";
 
 const queryClient = new QueryClient();
@@ -34,13 +36,20 @@ function WagmiWrapper({ children }: { children: React.ReactNode }) {
       idOverride: "para",
       nameOverride: "Para",
       options: {},
-    });
+      queryClient,
+    }) as unknown as CreateConnectorFn;
 
+    const defaultUrl = mantleSepolia.rpcUrls.default.http[0]!;
+    const envUrl = process.env.NEXT_PUBLIC_RPC_URL;
+    const urls = Array.from(new Set([envUrl, defaultUrl].filter(Boolean))) as string[];
     return createConfig({
       chains: [mantleSepolia],
       connectors: [connector],
       transports: {
-        [mantleSepolia.id]: http(mantleSepolia.rpcUrls.default.http[0]!),
+        // Increase timeout & retries and use fallback across provided URLs
+        [mantleSepolia.id]: urls.length > 1
+          ? fallback(urls.map((u) => http(u, { timeout: 30_000, retryCount: 3 })))
+          : http(urls[0]!, { timeout: 30_000, retryCount: 3 }),
       },
     });
   }, [para]);
